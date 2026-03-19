@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 March Madness Calcutta - Auction Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+<style>
+:root{--bg:#0f1117;--card:#1a1d27;--card2:#22263a;--border:#2a2e3f;--text:#e4e4e7;--muted:#8b8d97;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--purple:#a855f7;--cyan:#06b6d4;--south:#ef4444;--west:#3b82f6;--east:#22c55e;--midwest:#f59e0b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.4;}
+.dashboard{max-width:1600px;margin:0 auto;padding:12px;}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+header h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+header .subtitle{color:var(--muted);font-size:12px;}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.controls label{color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;}
+.controls select,.controls input[type=range]{background:var(--card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:12px;}
+.controls input[type=range]{width:200px;accent-color:var(--accent);}
+.pot-display{background:var(--accent);color:#fff;padding:4px 12px;border-radius:6px;font-weight:700;font-size:14px;min-width:120px;text-align:center;}
+.tabs{display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:4px;}
+.tab{padding:6px 16px;border-radius:6px 6px 0 0;cursor:pointer;color:var(--muted);font-weight:600;font-size:12px;transition:all 0.2s;}
+.tab:hover{color:var(--text);background:var(--card);}
+.tab.active{color:var(--accent);background:var(--card);border-bottom:2px solid var(--accent);}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px;}
+.kpi{background:var(--card);border-radius:8px;padding:12px;border:1px solid var(--border);}
+.kpi .label{color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:600;margin-bottom:2px;}
+.kpi .value{font-size:20px;font-weight:700;}
+.kpi .sub{color:var(--muted);font-size:10px;margin-top:2px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--card2);color:var(--muted);padding:6px 8px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;cursor:pointer;position:sticky;top:0;border-bottom:2px solid var(--border);white-space:nowrap;}
+th:hover{color:var(--accent);}
+td{padding:5px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tr:hover td{background:var(--card2);}
+.table-wrap{max-height:600px;overflow-y:auto;background:var(--card);border-radius:8px;border:1px solid var(--border);}
+.region-south{color:var(--south);}.region-west{color:var(--west);}.region-east{color:var(--green);}.region-midwest{color:var(--orange);}
+.seed-badge{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;font-weight:700;font-size:10px;background:var(--card2);color:var(--text);}
+.haut{background:var(--orange) !important;color:#000 !important;}
+.value-bar{height:6px;border-radius:3px;background:var(--card2);position:relative;min-width:60px;}
+.value-bar .fill{height:100%;border-radius:3px;background:var(--accent);}
+.value-bar .range{position:absolute;top:0;height:100%;background:rgba(255,255,255,0.15);border-radius:3px;}
+.positive{color:var(--green);}.negative{color:var(--red);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.chart-card{background:var(--card);border-radius:8px;padding:12px;border:1px solid var(--border);}
+.chart-card h3{font-size:13px;margin-bottom:8px;color:var(--muted);}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+/* Live tracker styles */
+.tracker-row:hover{background:var(--card2);}
+.tracker-check{width:16px;height:16px;accent-color:var(--accent);}
+.sold-input{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:4px;width:90px;font-size:12px;text-align:right;}
+.sold-input:focus{border-color:var(--accent);outline:none;}
+.implied-pot{font-size:11px;color:var(--muted);}
+.pot-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.pot-high{background:var(--red);}.pot-low{background:var(--green);}.pot-neutral{background:var(--muted);}
+.live-pot-bar{background:var(--card);border-radius:8px;padding:12px;border:1px solid var(--border);margin-bottom:12px;}
+.live-pot-bar h3{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.pot-est{font-size:28px;font-weight:700;color:var(--accent);}
+.pot-meta{color:var(--muted);font-size:11px;margin-top:4px;}
+.budget-bar{margin-top:8px;height:8px;background:var(--card2);border-radius:4px;overflow:hidden;}
+.budget-fill{height:100%;border-radius:4px;transition:width 0.3s;}
+/* My portfolio banner */
+.my-portfolio{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:none;}
+.my-portfolio.visible{display:block;}
+.my-portfolio .port-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.my-portfolio .port-title{font-size:13px;font-weight:700;color:var(--accent);}
+.my-portfolio .port-total{font-size:18px;font-weight:700;color:var(--text);}
+.my-portfolio .port-teams{display:flex;flex-wrap:wrap;gap:4px;}
+.my-portfolio .port-chip{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:11px;display:flex;align-items:center;gap:4px;}
+.my-portfolio .port-chip .chip-price{color:var(--accent);font-weight:600;}
+.mine-check{width:14px;height:14px;accent-color:var(--green);}
+.tracker-row{display:grid;grid-template-columns:30px 30px 40px 1fr 100px 80px 80px;align-items:center;gap:4px;padding:4px 8px;border-bottom:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="dashboard">
+<header>
+  <div>
+    <h1>2026 March Madness Calcutta</h1>
+    <div class="subtitle">11th Annual Auction — March 18, 2026 @ 8:00 PM</div>
+  </div>
+  <div class="controls">
+    <label>Pot Size</label>
+    <input type="range" id="potSlider" min="400000" max="800000" step="25000" value="625000">
+    <div class="pot-display" id="potDisplay">$625,000</div>
+    <label>Filter</label>
+    <select id="regionFilter">
+      <option value="all">All Regions</option>
+      <option value="South">South</option>
+      <option value="West">West</option>
+      <option value="East">East</option>
+      <option value="Midwest">Midwest</option>
+    </select>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="valuations">2026 Valuations</div>
+  <div class="tab" data-tab="tracker">Live Auction Tracker</div>
+  <div class="tab" data-tab="hautlist">Haut List & Strategy</div>
+  <div class="tab" data-tab="historical">Historical Analysis</div>
+</div>
+
+<!-- TAB 1: VALUATIONS -->
+<div class="tab-content active" id="tab-valuations">
+  <div class="my-portfolio" id="portfolio-val">
+    <div class="port-header">
+      <div class="port-title">My Portfolio — Team Worrell</div>
+      <div><span class="port-total" id="portTotalVal">$0</span> <span style="color:var(--muted);font-size:11px;">spent</span> <span style="color:var(--muted);font-size:11px;margin-left:8px;">Budget remaining: </span><span id="portBudgetVal" style="font-weight:600;">$55,000</span></div>
+    </div>
+    <div class="port-teams" id="portTeamsVal"></div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th data-sort="region">Region</th>
+          <th data-sort="seed">Seed</th>
+          <th data-sort="team">Team</th>
+          <th data-sort="avgValue">Avg Value</th>
+          <th>Range (Min-Max)</th>
+          <th data-sort="variability">Var %</th>
+          <th data-sort="champPct">Champ%</th>
+          <th data-sort="f4Pct">F4%</th>
+          <th data-sort="r1Pct">R1 Win%</th>
+          <th>KenPom</th>
+          <th>Massey</th>
+          <th>BPI</th>
+          <th>538</th>
+        </tr>
+      </thead>
+      <tbody id="mainTableBody"></tbody>
+    </table>
+  </div>
+  <div class="grid-2" style="margin-top:12px;">
+    <div class="chart-card"><h3>Value by Seed (Current Pot)</h3><canvas id="chartSeedValue"></canvas></div>
+    <div class="chart-card"><h3>Championship Probability Distribution</h3><canvas id="chartChampOdds"></canvas></div>
+  </div>
+</div>
+
+<!-- TAB 2: LIVE TRACKER -->
+<div class="tab-content" id="tab-tracker">
+  <div class="my-portfolio" id="portfolio-track">
+    <div class="port-header">
+      <div class="port-title">My Portfolio — Team Worrell</div>
+      <div><span class="port-total" id="portTotalTrack">$0</span> <span style="color:var(--muted);font-size:11px;">spent</span> <span style="color:var(--muted);font-size:11px;margin-left:8px;">Budget remaining: </span><span id="portBudgetTrack" style="font-weight:600;">$55,000</span></div>
+    </div>
+    <div class="port-teams" id="portTeamsTrack"></div>
+  </div>
+  <div class="grid-2">
+    <div class="live-pot-bar">
+      <h3>Live Pot Estimate (Auction-Implied)</h3>
+      <div class="pot-est" id="livePotEst">$600,000</div>
+      <div class="pot-meta" id="livePotMeta">Starting estimate — no teams sold yet</div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+        <label style="color:var(--muted);font-size:11px;white-space:nowrap;">Starting Pot Estimate:</label>
+        <input type="number" id="startingPotInput" value="625000" step="25000" min="400000" max="800000" style="background:var(--card2);border:1px solid var(--border);color:var(--accent);padding:6px 10px;border-radius:6px;width:130px;font-size:14px;font-weight:700;text-align:right;">
+      </div>
+      <div style="color:var(--muted);font-size:10px;margin-top:4px;">This is your prior. The live estimate blends this with auction signals as teams sell. Independent of the valuation slider above.</div>
+      <div style="margin-top:10px;">
+        <label style="color:var(--muted);font-size:11px;">Budget: $50,000 - $60,000</label>
+        <div class="budget-bar"><div class="budget-fill" id="budgetFill" style="width:0%;background:var(--green);"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;">
+          <span>Spent: <span id="totalSpent">$0</span></span>
+          <span>Remaining: <span id="budgetRemaining">$55,000</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="live-pot-bar">
+      <h3>Pot Growth Trend</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <div><div style="color:var(--muted);font-size:10px;">2023</div><div style="font-size:16px;font-weight:700;">$270,700</div></div>
+        <div><div style="color:var(--muted);font-size:10px;">2024 (+36%)</div><div style="font-size:16px;font-weight:700;">$368,500</div></div>
+        <div><div style="color:var(--muted);font-size:10px;">2025 (+37%)</div><div style="font-size:16px;font-weight:700;">$505,700</div></div>
+        <div><div style="color:var(--muted);font-size:10px;">2026 Live Est</div><div style="font-size:16px;font-weight:700;color:var(--accent);" id="potEstBox">$600,000</div></div>
+      </div>
+      <div style="color:var(--muted);font-size:10px;margin-top:8px;">At trend (+37%): ~$690K. Field is top-heavy (Duke 20%, AZ/Mich ~15%) which inflates top-end bidding. 10-11 groups expected. Range: $575K–$650K.</div>
+    </div>
+  </div>
+  <div class="table-wrap" style="max-height:none;">
+    <div style="display:grid;grid-template-columns:30px 30px 40px 1fr 100px 80px 80px;padding:6px 8px;background:var(--card2);font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;position:sticky;top:0;">
+      <div>Sold</div><div>Mine</div><div>Seed</div><div>Team</div><div>Sold For</div><div>EV @ Pot</div><div>Implied</div>
+    </div>
+    <div id="trackerRows"></div>
+  </div>
+</div>
+
+<!-- TAB 3: HAUT LIST -->
+<div class="tab-content" id="tab-hautlist">
+  <div class="kpis" id="hautKpis"></div>
+  <div class="grid-2" style="margin-top:12px;">
+    <div>
+      <h3 style="font-size:14px;margin-bottom:8px;">Haut List — Teams of Extra Interest</h3>
+      <div class="table-wrap">
+        <table id="hautTable">
+          <thead><tr><th>Region</th><th>Seed</th><th>Team</th><th>Avg Value</th><th>Range</th><th>Champ%</th><th>% of Seed Avg</th><th>Notes</th></tr></thead>
+          <tbody id="hautTableBody"></tbody>
+        </table>
+      </div>
+      <h3 style="font-size:14px;margin:12px 0 8px;">Best Value per Seed</h3>
+      <div class="table-wrap">
+        <table><thead><tr><th>Seed</th><th>Best Value Team</th><th>Avg Value</th><th>% Above Seed Avg</th></tr></thead>
+        <tbody id="bestValueBody"></tbody></table>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:14px;margin-bottom:8px;">Portfolio Strategy ($50K–$60K Budget)</h3>
+      <div class="chart-card"><canvas id="chartPortfolio"></canvas></div>
+      <div style="background:var(--card);border-radius:8px;padding:12px;border:1px solid var(--border);margin-top:12px;">
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:8px;">Strategy Notes</h3>
+        <ul style="color:var(--muted);font-size:11px;list-style:disc;padding-left:16px;line-height:1.8;">
+          <li>Budget is ~8-10% of pot. Target 6-10 teams for diversification.</li>
+          <li>Top-heavy field (Duke, Arizona, Michigan, Florida) will drive aggressive bidding on 1-seeds.</li>
+          <li>Best value historically: mid-seeds (4-7) where market underprices deep runs.</li>
+          <li>13-16 groups occasionally offer blowout bonus value ($6K at $600K pot).</li>
+          <li>Avoid bidding wars on 1-seeds unless price stays below 70% of EV.</li>
+          <li>Hautlist teams represent above-average value for their seed line.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: HISTORICAL -->
+<div class="tab-content" id="tab-historical">
+  <div class="controls" style="margin-bottom:12px;">
+    <label>Year</label>
+    <select id="histYear"><option value="all">All Years</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option></select>
+  </div>
+  <div class="kpis" style="margin-bottom:12px;">
+    <div class="kpi"><div class="label">Avg ROI (All Purchases)</div><div class="value" id="histAvgROI">—</div></div>
+    <div class="kpi"><div class="label">Avg Net P&L (Norm. to $506K)</div><div class="value" id="histAvgNetNorm">—</div><div class="sub">Normalized to 2025 pot size</div></div>
+    <div class="kpi"><div class="label">Avg Premium to EV</div><div class="value" id="histAvgPremium">—</div><div class="sub">% auction price vs expected value</div></div>
+    <div class="kpi"><div class="label">Best Purchase (Norm.)</div><div class="value" id="histBestPurchase">—</div></div>
+    <div class="kpi"><div class="label">Worst Purchase (Norm.)</div><div class="value" id="histWorstPurchase">—</div></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:12px;">
+    <div class="chart-card"><h3>Avg Net Return by Seed — Normalized to $506K Pot (3-Year)</h3><canvas id="chartHistSeed"></canvas></div>
+    <div class="chart-card"><h3>Avg Price/EV Ratio by Seed — How Much Market Overpays (3-Year)</h3><canvas id="chartSeedPremium"></canvas></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:12px;">
+    <div class="chart-card"><h3>Premium to EV vs ROI (% Above/Below EV → Actual Return)</h3><canvas id="chartHistScatter"></canvas></div>
+    <div class="chart-card"><h3>Price vs EV — Normalized to $506K Pot</h3><canvas id="chartHistNorm"></canvas></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Year</th><th>Region</th><th>Seed</th><th>Team</th><th>Price (Actual)</th><th>Price (Norm $506K)</th><th>EV (Norm $506K)</th><th>Premium to EV</th><th>Payout (Norm $506K)</th><th>Net P&L (Norm)</th><th>ROI %</th></tr></thead>
+      <tbody id="histTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+const RAW_DATA = {"teams":[["South",1,"Florida",99.4,80.7,56.7,31.3,16.5,8.4,0.0,35973,33008,38973,34053,33008,36231,38973],["South",2,"Houston",97.2,77.2,48.6,29.1,15.1,7.7,0.1,33119,29973,37168,29973,31973,37168,31932],["South",3,"Illinois",96.6,76.6,37.4,19.7,9.4,4.3,0.1,25672,22926,27401,27401,22926,26473,25547],["South",4,"Nebraska",90.9,49.9,17.2,6.1,2.0,0.7,0.3,12947,11561,13983,13659,12759,13983,11561],["South",5,"Vanderbilt",81.9,44.5,17.2,6.8,2.6,1.0,0.6,12661,10629,13985,13528,12858,10629,13985],["South",6,"North Carolina",58.3,14.8,4.3,1.4,0.5,0.1,1.3,5031,3635,8161,5072,8161,4314,3635],["South",7,"Saint Mary's",55.8,13.6,5.0,1.7,0.5,0.1,1.4,5025,3633,5931,5931,5656,3633,5393],["South",8,"Clemson",45.3,8.1,3.2,0.9,0.3,0.1,1.7,3564,2713,5094,3261,5094,3596,2713],["South",9,"Iowa",54.7,11.2,4.9,1.5,0.5,0.1,1.4,4737,3507,6135,5313,6135,3507,4652],["South",10,"Texas A&M",44.2,8.9,3.0,0.9,0.3,0.1,1.7,3563,2976,5224,2976,5224,3071,3339],["South",11,"VCU",41.7,8.1,1.7,0.4,0.1,0.0,1.8,2982,2386,3554,2984,3017,2386,3554],["South",12,"McNeese",18.1,4.4,0.6,0.1,0.0,0.0,2.6,1419,1345,1641,1395,1641,1361,1345],["South","13-16","Troy, Penn, Idaho",15.9,2.0,0.1,0.0,0.0,0.0,12.0,1601,1343,2252,1435,2252,1356,1523],["West",1,"Arizona",99.0,85.5,66.4,45.5,26.3,14.9,0.0,47361,36827,51983,50833,36827,47448,51983],["West",2,"Purdue",97.4,77.9,45.7,20.7,9.8,4.5,0.1,27484,26389,28559,27552,27444,28559,26389],["West",3,"Gonzaga",95.5,68.4,36.0,15.6,6.9,3.0,0.1,22318,18998,25617,18998,23716,25617,20300],["West",4,"Arkansas",90.7,57.5,17.1,7.4,2.6,0.9,0.3,14085,13147,15019,13714,15019,14647,13147],["West",5,"Wisconsin",80.4,37.1,10.2,4.1,1.4,0.5,0.6,9681,7614,12541,9577,12541,7614,9912],["West",6,"BYU",58.7,19.7,7.6,2.3,0.8,0.2,1.3,6300,5107,7873,6976,7873,5995,5107],["West",7,"Miami (FL)",55.5,12.8,4.4,1.0,0.2,0.1,1.4,4563,3744,5707,5707,4212,3744,4854],["West",8,"Villanova",46.4,6.4,2.6,0.8,0.2,0.1,1.7,3341,2544,4738,3451,4738,3132,2544],["West",9,"Utah St.",53.6,8.0,3.3,1.1,0.3,0.1,1.4,3992,3452,4808,3872,4808,3452,4069],["West",10,"Missouri",44.5,9.0,2.6,0.6,0.2,0.0,1.7,3380,2723,4814,2723,4814,2908,3335],["West",11,"Texas",41.2,11.4,3.6,0.9,0.2,0.1,1.8,3690,2644,4820,3651,4820,2644,4009],["West",12,"High Point",19.6,3.8,0.4,0.1,0.0,0.0,2.5,1391,1189,1617,1189,1471,1617,1248],["West","13-16","High Point, Hawaii",17.4,2.4,0.2,0.0,0.0,0.0,11.9,1705,1452,2226,1671,2226,1595,1491],["East",1,"Duke",98.8,84.7,66.2,49.8,32.3,20.0,0.0,52479,41252,59881,55156,41252,59881,50777],["East",2,"UCONN",94.7,68.3,37.9,14.2,6.0,2.4,0.2,21723,20469,23426,20469,21579,23426,20951],["East",3,"Michigan St",92.0,57.9,30.8,10.9,4.4,1.7,0.2,18075,17109,19131,18827,19131,17837,17109],["East",4,"Kansas",88.2,48.4,12.6,5.8,2.1,0.7,0.4,11981,10830,13889,11095,13889,12451,10830],["East",5,"St. John's",82.3,45.3,14.1,7.4,3.0,1.1,0.6,12579,10007,14731,11606,14181,10007,14731],["East",6,"Louisville",74.0,34.0,17.2,5.6,2.2,0.8,0.8,10968,10001,11675,10454,10001,11675,11249],["East",7,"UCLA",68.5,23.9,10.0,2.7,0.8,0.3,1.0,7514,6204,9281,7209,9281,6204,7850],["East",8,"Ohio St.",62.8,10.8,4.9,2.1,0.7,0.2,1.2,5310,4222,6466,4953,6466,4222,5863],["East",9,"TCU",37.2,4.5,1.6,0.5,0.1,0.0,2.0,2552,1930,3597,2523,3597,1930,2498],["East",10,"UCF",31.5,7.0,1.9,0.3,0.1,0.0,2.1,2475,1779,3336,2699,3336,1779,2447],["East",11,"South Florida",26.0,6.9,2.0,0.4,0.1,0.0,2.3,2251,1377,2719,2440,2671,1377,2719],["East",12,"Northern Iowa",17.7,4.5,0.5,0.1,0.0,0.0,2.6,1404,1044,1642,1571,1642,1044,1496],["East","13-16","Cal Baptist, N. Dakota St.",26.2,3.9,0.3,0.0,0.0,0.0,11.6,2222,1623,2909,2192,2909,1635,2372],["Midwest",1,"Michigan",98.5,85.1,64.9,43.8,26.9,15.4,0.0,47095,30911,52891,51916,30911,48873,52891],["Midwest",2,"Iowa St.",97.8,74.9,49.7,24.4,12.6,6.0,0.1,30408,26777,32433,29821,26777,32433,31195],["Midwest",3,"Virginia",91.8,51.3,19.9,6.7,2.4,0.8,0.3,13798,10650,15257,15257,10650,13725,14997],["Midwest",4,"Alabama",88.1,59.0,19.1,8.6,3.5,1.3,0.4,15189,11918,20129,11918,20129,15182,14082],["Midwest",5,"Texas Tech",77.2,33.5,9.7,4.0,1.5,0.5,0.7,9237,6493,13221,10405,13221,8547,6493],["Midwest",6,"Tennessee",76.8,40.7,17.8,7.0,3.0,1.2,0.7,12489,10320,18413,10730,18413,11880,10320],["Midwest",7,"Kentucky",64.9,18.1,8.5,2.8,1.0,0.3,1.1,6795,5046,9425,5046,9425,6411,6593],["Midwest",8,"Georgia",56.1,9.2,3.7,1.2,0.3,0.1,1.4,4293,3258,6268,4010,6268,3258,4201],["Midwest",9,"Saint Louis",43.9,5.5,1.9,0.5,0.1,0.0,1.7,2953,2882,3102,2889,2899,3102,2882],["Midwest",10,"Santa Clara",35.1,6.8,2.3,0.5,0.1,0.0,2.0,2729,1726,3630,3630,3234,1726,2793],["Midwest",11,"Miami (OH) / SMU",23.2,7.1,1.7,0.4,0.1,0.0,2.8,2126,1760,2743,2422,2741,1760,1884],["Midwest",12,"Akron",22.8,4.8,0.5,0.1,0.0,0.0,2.4,1632,1200,2054,1674,1604,1200,2054],["Midwest","13-16","Hofstra, Wright St.",23.9,4.0,0.3,0.0,0.0,0.0,11.7,2136,1715,2860,2191,2578,1760,2181]],"hautlist":["UCLA","South Florida","Vanderbilt","Illinois","Texas","Arizona","Iowa St."],"hist":{"2023":[["South","1","Alabama",17100,5414,17356,270700,250000],["South","2","Arizona",12400,0,9165,270700,250000],["South","3","Baylor",8200,2030,7169,270700,250000],["South","4","Virginia",4700,0,4204,270700,250000],["South","5","San Diego St.",5500,38575,4428,270700,250000],["South","6","Creighton",7550,12182,5784,270700,250000],["South","7","Missouri",1800,2030,1578,270700,250000],["South","8","Maryland",1800,2030,2459,270700,250000],["South","9","West Virginia",2300,0,2636,270700,250000],["South","10","Utah State",3500,0,3183,270700,250000],["South","11","NC State",2300,0,1359,270700,250000],["South","12","Charleston",2200,0,1379,270700,250000],["South","13-16","South 13-16",2600,7444,2080,270700,250000],["West","1","Kansas",13400,2030,9736,270700,250000],["West","2","UCLA",12000,5414,12585,270700,250000],["West","3","Gonzaga",9100,12182,10016,270700,250000],["West","4","Connecticut",9400,57524,8279,270700,250000],["West","5","Saint Mary's",3100,2030,3897,270700,250000],["West","6","TCU",4500,2030,3405,270700,250000],["West","7","Northwestern",2600,2030,1759,270700,250000],["West","8","Arkansas",2500,5414,3021,270700,250000],["West","9","Illinois",1800,0,2405,270700,250000],["West","10","Boise St.",2300,0,2288,270700,250000],["West","11","Arizona St./Nevada",2800,0,1325,270700,250000],["West","12","VCU",3200,0,1435,270700,250000],["West","13-16","West 13-16",2000,2707,1639,270700,250000],["East","1","Purdue",10300,0,11102,270700,250000],["East","2","Marquette",10100,2030,7760,270700,250000],["East","3","Kansas St.",9000,12182,4950,270700,250000],["East","4","Tennessee",5100,5414,11058,270700,250000],["East","5","Duke",7500,2030,5089,270700,250000],["East","6","Kentucky",4000,2030,5124,270700,250000],["East","7","Michigan St.",2400,5414,3471,270700,250000],["East","8","Memphis",3500,0,3068,270700,250000],["East","9","FAU",1900,23686,1814,270700,250000],["East","10","USC",2200,0,2290,270700,250000],["East","11","Providence",2400,0,2431,270700,250000],["East","12","Oral Roberts",950,0,871,270700,250000],["East","13-16","East 13-16",2800,2030,1752,270700,250000],["Midwest","1","Houston",17400,5414,19942,270700,250000],["Midwest","2","Texas",14600,12182,11269,270700,250000],["Midwest","3","Xavier",7200,5414,5914,270700,250000],["Midwest","4","Indiana",5000,2030,4651,270700,250000],["Midwest","5","Miami",2300,23686,2785,270700,250000],["Midwest","6","Iowa State",2850,0,4121,270700,250000],["Midwest","7","Texas A&M",2900,0,3416,270700,250000],["Midwest","8","Iowa",2000,0,2260,270700,250000],["Midwest","9","Auburn",2600,2030,2776,270700,250000],["Midwest","10","Penn State",2050,2030,1946,270700,250000],["Midwest","11","Pittsburgh",2900,2030,1475,270700,250000],["Midwest","12","Drake",2800,0,1782,270700,250000],["Midwest","13-16","Midwest 13-16",3300,0,2315,270700,250000]],"2024":[["South","13-16","South 13-16",3800,6449,1653,368500,275000],["South","12","James Madison",2250,2764,1223,368500,275000],["South","11","NC State",2050,32244,1994,368500,275000],["South","10","Colorado",3150,2764,2696,368500,275000],["South","9","Texas A&M",3350,2764,2112,368500,275000],["South","8","Nebraska",3150,0,2090,368500,275000],["South","7","Florida",6000,0,3328,368500,275000],["South","6","Texas Tech",4150,0,3796,368500,275000],["South","5","Wisconsin",4350,0,3972,368500,275000],["South","4","Duke",11100,16583,8321,368500,275000],["South","3","Kentucky",12850,0,7714,368500,275000],["South","2","Marquette",9200,7370,8525,368500,275000],["South","1","Houston",22100,7370,21726,368500,275000],["West","13-16","West 13-16",2450,0,1450,368500,275000],["West","12","Grand Canyon",1950,2764,1412,368500,275000],["West","11","New Mexico",3900,0,2606,368500,275000],["West","10","Nevada",3850,0,2099,368500,275000],["West","9","Michigan State",3500,2764,3536,368500,275000],["West","8","Mississippi State",2850,0,2333,368500,275000],["West","7","Dayton",3000,2764,2232,368500,275000],["West","6","Clemson",2450,16583,2730,368500,275000],["West","5","Saint Mary's",6300,0,5063,368500,275000],["West","4","Alabama",9000,32244,7945,368500,275000],["West","3","Baylor",10750,2764,8224,368500,275000],["West","2","Arizona",24200,7370,16593,368500,275000],["West","1","North Carolina",20000,7370,10653,368500,275000],["East","13-16","East 13-16",2500,2764,1485,368500,275000],["East","12","UAB",1300,0,754,368500,275000],["East","11","Duquesne",1000,2764,809,368500,275000],["East","10","Drake",3100,0,1936,368500,275000],["East","9","Northwestern",2400,2764,1592,368500,275000],["East","8","FAU",2700,0,1920,368500,275000],["East","7","Washington St.",2100,2764,2111,368500,275000],["East","6","BYU",6200,0,4677,368500,275000],["East","5","San Diego St.",4050,7370,3513,368500,275000],["East","4","Auburn",13750,0,10446,368500,275000],["East","3","Illinois",10050,16583,8541,368500,275000],["East","2","Iowa State",19750,7370,12026,368500,275000],["East","1","Connecticut",30000,78306,20636,368500,275000],["Midwest","13-16","Midwest 13-16",3200,0,1685,368500,275000],["Midwest","12","McNeese St.",1850,0,828,368500,275000],["Midwest","11","Oregon",3550,2764,2138,368500,275000],["Midwest","10","Colorado St.",3100,0,1389,368500,275000],["Midwest","9","TCU",3050,0,2582,368500,275000],["Midwest","8","Utah St.",2100,2764,1477,368500,275000],["Midwest","7","Texas",5300,2764,3395,368500,275000],["Midwest","6","South Carolina",3100,0,2180,368500,275000],["Midwest","5","Gonzaga",6400,7370,6727,368500,275000],["Midwest","4","Kansas",5400,2764,5094,368500,275000],["Midwest","3","Creighton",12100,7370,9311,368500,275000],["Midwest","2","Tennessee",17000,16583,12922,368500,275000],["Midwest","1","Purdue",21750,52511,18600,368500,275000]],"2025":[["South","13-16","South 13-16",4500,0,2251,505700,350000],["South","12","UC San Diego",4700,0,2319,505700,350000],["South","11","North Carolina",6500,0,3789,505700,350000],["South","10","New Mexico",4600,3793,2069,505700,350000],["South","9","Creighton",3700,3793,2663,505700,350000],["South","8","Louisville",6100,0,3869,505700,350000],["South","7","Marquette",5900,0,4824,505700,350000],["South","6","Ole Miss",7700,10114,3976,505700,350000],["South","5","Michigan",7100,10114,4991,505700,350000],["South","4","Texas A&M",8400,3793,6842,505700,350000],["South","3","Iowa St.",13100,3793,10909,505700,350000],["South","2","Michigan St.",22000,22757,13222,505700,350000],["South","1","Auburn",35500,44249,25012,505700,350000],["West","13-16","West 13-16",2900,0,1886,505700,350000],["West","12","Colorado St.",4300,3793,2997,505700,350000],["West","11","Drake",3100,3793,2033,505700,350000],["West","10","Arkansas",3600,10114,1828,505700,350000],["West","9","Oklahoma",2100,0,1692,505700,350000],["West","8","UConn",3600,3793,4580,505700,350000],["West","7","Kansas",7400,0,5692,505700,350000],["West","6","Missouri",5200,0,4763,505700,350000],["West","5","Memphis",4100,0,2816,505700,350000],["West","4","Maryland",12500,10114,9590,505700,350000],["West","3","Texas Tech",16200,22757,12196,505700,350000],["West","2","St. John's",17400,3793,12416,505700,350000],["West","1","Florida",37800,107461,24210,505700,350000],["East","13-16","East 13-16",3900,5057,1426,505700,350000],["East","12","Liberty",1800,0,1280,505700,350000],["East","11","VCU",4900,0,2976,505700,350000],["East","10","Vanderbilt",3200,0,1542,505700,350000],["East","9","Baylor",3000,3793,2899,505700,350000],["East","8","Mississippi St.",5100,0,2144,505700,350000],["East","7","Saint Mary's",6700,3793,4478,505700,350000],["East","6","BYU",7900,10114,4758,505700,350000],["East","5","Oregon",7300,3793,4292,505700,350000],["East","4","Arizona",12100,10114,9362,505700,350000],["East","3","Wisconsin",12600,3793,8856,505700,350000],["East","2","Alabama",20200,22757,15808,505700,350000],["East","1","Duke",42200,44249,29137,505700,350000],["Midwest","13-16","Midwest 13-16",4400,0,2231,505700,350000],["Midwest","12","McNeese",2200,3793,1128,505700,350000],["Midwest","11","Xavier",4200,0,2855,505700,350000],["Midwest","10","Utah St.",3200,0,1803,505700,350000],["Midwest","9","Georgia",2300,0,1438,505700,350000],["Midwest","8","Gonzaga",9100,3793,6167,505700,350000],["Midwest","7","UCLA",6200,3793,3936,505700,350000],["Midwest","6","Illinois",8000,3793,5810,505700,350000],["Midwest","5","Clemson",10100,0,6603,505700,350000],["Midwest","4","Purdue",8000,10114,6995,505700,350000],["Midwest","3","Kentucky",11200,10114,7932,505700,350000],["Midwest","2","Tennessee",23000,22757,16613,505700,350000],["Midwest","1","Houston",32900,72062,24098,505700,350000]]},"pots":{"2023":270700,"2024":368500,"2025":505700},"basePots":{"2023":250000,"2024":275000,"2025":350000},"payoutPcts":[0.0075,0.0125,0.025,0.0425,0.055,0.07,0.01]};
+
+// ============================================================
+// CORE STATE
+// ============================================================
+let currentPot = 625000;
+let currentRegion = 'all';
+let sortCol = 'avgValue';
+let sortDir = -1;
+let soldTeams = {}; // {teamKey: soldPrice}
+let myTeams = {}; // {teamKey: true} — teams I purchased
+const BUDGET = 55000;
+const BASE_POT = 600000;
+
+const T = RAW_DATA.teams; // [region, seed, team, r1,r2,r3,r4,r5,r6,blowout, avg600k, min600k, max600k, kp, mass, bpi, s538]
+const HAUT = RAW_DATA.hautlist;
+
+function fmt(n){return '$'+Math.round(n).toLocaleString();}
+function fmtK(n){return n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+Math.round(n);}
+function pct(n){return n.toFixed(1)+'%';}
+function scale(val600k, pot){return val600k * pot / 600000;}
+function seedNum(s){return typeof s==='number'?s:(s==='13-16'?14:parseInt(s));}
+
+// Compute team value at any pot size
+function teamVal(t, pot){return scale(t[10], pot);}
+function teamMin(t, pot){return scale(t[11], pot);}
+function teamMax(t, pot){return scale(t[12], pot);}
+function teamKey(t){return t[0]+'-'+t[1]+'-'+t[2];}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+// POT SLIDER
+// ============================================================
+const potSlider = document.getElementById('potSlider');
+const potDisplay = document.getElementById('potDisplay');
+potSlider.addEventListener('input',()=>{
+  currentPot = parseInt(potSlider.value);
+  potDisplay.textContent = fmt(currentPot);
+  renderAll();
+});
+
+document.getElementById('regionFilter').addEventListener('change',(e)=>{
+  currentRegion = e.target.value;
+  renderAll();
+});
+
+// ============================================================
+// RENDER MAIN TABLE
+// ============================================================
+function getFiltered(){
+  let data = T;
+  if(currentRegion!=='all') data = data.filter(t=>t[0]===currentRegion);
+  return data;
+}
+
+function renderKPIs(){
+  const filtered = getFiltered();
+  const top4 = [...filtered].sort((a,b)=>b[10]-a[10]).slice(0,4);
+  const totalVal = filtered.reduce((s,t)=>s+teamVal(t,currentPot),0);
+  const avgChamp = filtered.reduce((s,t)=>s+t[8],0)/filtered.length;
+  
+  let html = `
+    <div class="kpi"><div class="label">Pot Size</div><div class="value">${fmt(currentPot)}</div><div class="sub">${filtered.length} teams</div></div>
+    <div class="kpi"><div class="label">Top Value</div><div class="value">${fmt(teamVal(top4[0],currentPot))}</div><div class="sub">${top4[0][2]} (${top4[0][0]} ${top4[0][1]})</div></div>
+    <div class="kpi"><div class="label">Per-Round Values</div><div class="value">${fmt(currentPot*0.0075)}</div><div class="sub">R1 Win / ${fmt(currentPot*0.07)} Champ</div></div>
+    <div class="kpi"><div class="label">Blowout Bonus</div><div class="value">${fmt(currentPot*0.01)}</div><div class="sub">Biggest R1 loss margin</div></div>
+    <div class="kpi"><div class="label">Budget</div><div class="value">$50-60K</div><div class="sub">${(55000/currentPot*100).toFixed(1)}% of pot</div></div>
+  `;
+  document.getElementById('kpis').innerHTML = html;
+}
+
+function renderMainTable(){
+  let data = getFiltered();
+  // Sort
+  data = [...data].sort((a,b)=>{
+    let va,vb;
+    switch(sortCol){
+      case 'region': va=a[0];vb=b[0];return sortDir*(va<vb?-1:va>vb?1:0);
+      case 'seed': va=seedNum(a[1]);vb=seedNum(b[1]);return sortDir*(va-vb);
+      case 'team': va=a[2];vb=b[2];return sortDir*(va<vb?-1:va>vb?1:0);
+      case 'avgValue': return sortDir*(teamVal(a,currentPot)-teamVal(b,currentPot));
+      case 'variability': va=(a[12]-a[11])/a[10];vb=(b[12]-b[11])/b[10];return sortDir*(va-vb);
+      case 'champPct': return sortDir*(a[8]-b[8]);
+      case 'f4Pct': return sortDir*(a[7]-b[7]);
+      case 'r1Pct': return sortDir*(a[3]-b[3]);
+      default: return 0;
+    }
+  });
+  
+  const maxVal = Math.max(...T.map(t=>teamVal(t,currentPot)));
+  const isHaut = (t)=>HAUT.includes(t[2]) || (t[2]==='Iowa St.' && HAUT.includes('Iowa St.'));
+  
+  let html = '';
+  data.forEach(t=>{
+    const val = teamVal(t,currentPot);
+    const mn = teamMin(t,currentPot);
+    const mx = teamMax(t,currentPot);
+    const varPct = ((mx-mn)/val*100);
+    const regionClass = 'region-'+t[0].toLowerCase();
+    const hautClass = isHaut(t)?'haut':'';
+    const barW = (val/maxVal*100);
+    const rangeL = (mn/maxVal*100);
+    const rangeW = ((mx-mn)/maxVal*100);
+    
+    html += `<tr>
+      <td><span class="${regionClass}">${t[0]}</span></td>
+      <td><span class="seed-badge ${hautClass}">${t[1]}</span></td>
+      <td style="font-weight:${isHaut(t)?'700':'400'};${isHaut(t)?'color:var(--orange);':''}">${t[2]}</td>
+      <td style="font-weight:700;">${fmt(val)}</td>
+      <td><div class="value-bar"><div class="fill" style="width:${barW}%"></div><div class="range" style="left:${rangeL}%;width:${rangeW}%"></div></div><span style="font-size:10px;color:var(--muted);">${fmtK(mn)} - ${fmtK(mx)}</span></td>
+      <td style="color:${varPct>50?'var(--orange)':'var(--muted)'}">${varPct.toFixed(0)}%</td>
+      <td style="font-weight:${t[8]>5?'700':'400'};color:${t[8]>10?'var(--accent)':t[8]>3?'var(--cyan)':'var(--muted)'}">${pct(t[8])}</td>
+      <td>${pct(t[7])}</td>
+      <td>${pct(t[3])}</td>
+      <td style="color:var(--muted)">${fmtK(scale(t[13],currentPot))}</td>
+      <td style="color:var(--muted)">${fmtK(scale(t[14],currentPot))}</td>
+      <td style="color:var(--muted)">${fmtK(scale(t[15],currentPot))}</td>
+      <td style="color:var(--muted)">${fmtK(scale(t[16],currentPot))}</td>
+    </tr>`;
+  });
+  document.getElementById('mainTableBody').innerHTML = html;
+}
+
+// Table sort
+document.querySelectorAll('#mainTable th[data-sort]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col = th.dataset.sort;
+    if(sortCol===col) sortDir*=-1; else {sortCol=col;sortDir=-1;}
+    renderMainTable();
+  });
+});
+
+// ============================================================
+// CHARTS
+// ============================================================
+let chartSeedValue, chartChampOdds, chartHistSeed, chartHistScatter, chartHistNorm, chartSeedPremium, chartPortfolio;
+let startingPotEstimate = 625000; // independent from valuation slider
+
+function renderCharts(){
+  // Seed value chart
+  const seeds = [1,2,3,4,5,6,7,8,9,10,11,12,'13-16'];
+  const seedAvgs = seeds.map(s=>{
+    const ts = T.filter(t=>t[1]==s || (s==='13-16'&&t[1]==='13-16'));
+    return ts.length ? ts.reduce((sum,t)=>sum+teamVal(t,currentPot),0)/ts.length : 0;
+  });
+  
+  if(chartSeedValue) chartSeedValue.destroy();
+  chartSeedValue = new Chart(document.getElementById('chartSeedValue'),{
+    type:'bar',
+    data:{labels:seeds.map(String),datasets:[{
+      label:'Avg Value by Seed',data:seedAvgs,
+      backgroundColor:seeds.map((_,i)=>`hsl(${210+i*10},70%,50%)`),
+      borderRadius:4
+    }]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'#2a2e3f'}},x:{grid:{display:false}}}}
+  });
+  
+  // Championship odds
+  const champTeams = [...T].filter(t=>t[8]>0.5).sort((a,b)=>b[8]-a[8]);
+  if(chartChampOdds) chartChampOdds.destroy();
+  chartChampOdds = new Chart(document.getElementById('chartChampOdds'),{
+    type:'bar',
+    data:{labels:champTeams.map(t=>t[2]),datasets:[{
+      label:'Championship %',data:champTeams.map(t=>t[8]),
+      backgroundColor:champTeams.map(t=>{
+        const colors={South:'rgba(239,68,68,0.7)',West:'rgba(59,130,246,0.7)',East:'rgba(34,197,94,0.7)',Midwest:'rgba(245,158,11,0.7)'};
+        return colors[t[0]];
+      }),borderRadius:4
+    }]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(1)+'%'}}},scales:{x:{ticks:{callback:v=>v+'%'},grid:{color:'#2a2e3f'}},y:{grid:{display:false}}}}
+  });
+}
+
+// ============================================================
+// LIVE TRACKER
+// ============================================================
+function renderTracker(){
+  const sorted = [...T].sort((a,b)=>seedNum(a[1])-seedNum(b[1]));
+  let html = '';
+  sorted.forEach(t=>{
+    const key = teamKey(t);
+    const val = teamVal(t, currentPot);
+    const sold = soldTeams[key];
+    const isMine = myTeams[key];
+    const regionClass = 'region-'+t[0].toLowerCase();
+    let impliedHtml = '';
+    if(sold !== undefined && sold > 0){
+      const evPct = t[10]/600000;
+      const impliedPot = evPct > 0 ? sold / evPct : 0;
+      const diff = impliedPot - startingPotEstimate;
+      const cls = diff > 50000 ? 'pot-high' : diff < -50000 ? 'pot-low' : 'pot-neutral';
+      impliedHtml = `<span class="pot-indicator ${cls}"></span>${fmtK(impliedPot)}`;
+    }
+    html += `<div class="tracker-row" style="${isMine?'background:rgba(34,197,94,0.08);border-left:3px solid var(--green);':''}">
+      <input type="checkbox" class="tracker-check" data-key="${key}" ${sold!==undefined?'checked':''}>
+      <input type="checkbox" class="mine-check" data-key="${key}" ${isMine?'checked':''} title="I bought this team">
+      <span class="seed-badge ${HAUT.includes(t[2])?'haut':''}">${t[1]}</span>
+      <span class="${regionClass}" style="font-weight:600;">${t[2]}</span>
+      <input type="number" class="sold-input" data-key="${key}" placeholder="${fmt(val)}" value="${sold!==undefined?sold:''}" step="100">
+      <span style="font-size:11px;">${fmtK(val)}</span>
+      <span class="implied-pot">${impliedHtml}</span>
+    </div>`;
+  });
+  document.getElementById('trackerRows').innerHTML = html;
+
+  // Attach events
+  document.querySelectorAll('.sold-input').forEach(inp=>{
+    inp.addEventListener('change',()=>{
+      const key = inp.dataset.key;
+      const val = parseFloat(inp.value);
+      if(!isNaN(val) && val > 0){
+        soldTeams[key] = val;
+        inp.closest('.tracker-row').querySelector('.tracker-check').checked = true;
+      } else {
+        delete soldTeams[key];
+        delete myTeams[key];
+        inp.closest('.tracker-row').querySelector('.tracker-check').checked = false;
+        inp.closest('.tracker-row').querySelector('.mine-check').checked = false;
+      }
+      updateLivePot();
+      renderPortfolio();
+      saveState();
+    });
+  });
+  document.querySelectorAll('.tracker-check').forEach(chk=>{
+    chk.addEventListener('change',()=>{
+      const key = chk.dataset.key;
+      if(!chk.checked){
+        delete soldTeams[key];
+        delete myTeams[key];
+        const row = chk.closest('.tracker-row');
+        row.querySelector('.sold-input').value = '';
+        row.querySelector('.mine-check').checked = false;
+      }
+      updateLivePot();
+      renderPortfolio();
+      saveState();
+    });
+  });
+  document.querySelectorAll('.mine-check').forEach(chk=>{
+    chk.addEventListener('change',()=>{
+      const key = chk.dataset.key;
+      if(chk.checked){
+        myTeams[key] = true;
+        if(!soldTeams[key]){
+          const inp = chk.closest('.tracker-row').querySelector('.sold-input');
+          inp.focus();
+        }
+      } else {
+        delete myTeams[key];
+      }
+      renderPortfolio();
+      saveState();
+      renderTracker(); // re-render for row highlighting
+    });
+  });
+  updateLivePot();
+}
+
+function renderPortfolio(){
+  const myKeys = Object.keys(myTeams);
+  const hasTeams = myKeys.length > 0;
+
+  // Calculate totals
+  let totalSpent = 0;
+  let chips = '';
+  myKeys.forEach(key=>{
+    const team = T.find(t=>teamKey(t)===key);
+    if(!team) return;
+    const price = soldTeams[key] || 0;
+    totalSpent += price;
+    const regionClass = 'region-'+team[0].toLowerCase();
+    chips += `<div class="port-chip"><span class="${regionClass}">${team[1]}</span> ${team[2]} <span class="chip-price">${price>0?fmt(price):'—'}</span></div>`;
+  });
+
+  const remaining = BUDGET - totalSpent;
+  const remainClass = remaining < 0 ? 'negative' : remaining < 10000 ? 'style="color:var(--orange)"' : '';
+
+  // Update both banners
+  ['val','track'].forEach(suffix=>{
+    const el = document.getElementById('portfolio-'+suffix);
+    if(hasTeams) el.classList.add('visible'); else el.classList.remove('visible');
+    document.getElementById('portTotal'+suffix.charAt(0).toUpperCase()+suffix.slice(1)).textContent = fmt(totalSpent);
+    document.getElementById('portBudget'+suffix.charAt(0).toUpperCase()+suffix.slice(1)).textContent = fmt(remaining);
+    document.getElementById('portBudget'+suffix.charAt(0).toUpperCase()+suffix.slice(1)).className = remaining<0?'negative':remaining<10000?'':'';
+    document.getElementById('portTeams'+suffix.charAt(0).toUpperCase()+suffix.slice(1)).innerHTML = chips;
+  });
+}
+
+function updateLivePot(){
+  const keys = Object.keys(soldTeams);
+  const n = keys.length;
+  const prior = startingPotEstimate;
+
+  if(n === 0){
+    document.getElementById('livePotEst').textContent = fmt(prior);
+    document.getElementById('livePotMeta').textContent = 'Using starting estimate — no teams sold yet';
+    document.getElementById('potEstBox').textContent = fmt(prior);
+    document.getElementById('totalSpent').textContent = '$0';
+    document.getElementById('budgetRemaining').textContent = fmt(BUDGET);
+    document.getElementById('budgetFill').style.width = '0%';
+    document.getElementById('budgetFill').style.background = 'var(--green)';
+    return;
+  }
+  
+  // Weighted implied pot: weight by team's % of pot (bigger teams = more signal)
+  let weightedSum = 0, totalWeight = 0;
+  keys.forEach(key=>{
+    const team = T.find(t=>teamKey(t)===key);
+    if(!team) return;
+    const evPct = team[10] / 600000;
+    if(evPct <= 0) return;
+    const impliedPot = soldTeams[key] / evPct;
+    const weight = evPct; // weight by team's share of pot
+    weightedSum += impliedPot * weight;
+    totalWeight += weight;
+  });
+  
+  // Blend with prior (starting pot estimate, NOT the valuation slider): anchor to prior, decay as more data comes in
+  const dataWeight = Math.min(totalWeight * 3, 0.9); // caps at 90% data-driven
+  const priorWeight = 1 - dataWeight;
+  const impliedAvg = totalWeight > 0 ? weightedSum / totalWeight : prior;
+  const blendedPot = priorWeight * prior + dataWeight * impliedAvg;
+  const roundedPot = Math.round(blendedPot / 25000) * 25000;
+  
+  document.getElementById('livePotEst').textContent = fmt(roundedPot);
+  document.getElementById('livePotMeta').textContent = `Based on ${n} team${n>1?'s':''} sold (${(totalWeight*100).toFixed(1)}% of pot weight) | Raw implied: ${fmt(impliedAvg)}`;
+  document.getElementById('potEstBox').textContent = fmt(roundedPot);
+  
+  // Budget tracking
+  let mySpent = 0;
+  keys.forEach(key=>{ mySpent += soldTeams[key] || 0; });
+  // Actually this tracks ALL sold, not just yours. Let's show total pot build instead.
+  const totalSold = keys.reduce((s,k)=>s+soldTeams[k],0);
+  document.getElementById('totalSpent').textContent = fmt(totalSold);
+  document.getElementById('budgetRemaining').textContent = `${n}/52 sold`;
+  const pctSold = n/52*100;
+  document.getElementById('budgetFill').style.width = pctSold+'%';
+  document.getElementById('budgetFill').style.background = pctSold>80?'var(--green)':'var(--accent)';
+  
+  // Update implied pots in tracker
+  document.querySelectorAll('.tracker-row').forEach(row=>{
+    const inp = row.querySelector('.sold-input');
+    const key = inp.dataset.key;
+    const team = T.find(t=>teamKey(t)===key);
+    const impliedSpan = row.querySelector('.implied-pot');
+    if(soldTeams[key] && team){
+      const evPct = team[10]/600000;
+      const implied = evPct>0 ? soldTeams[key]/evPct : 0;
+      const diff = implied - roundedPot;
+      const cls = diff > 50000 ? 'pot-high' : diff < -50000 ? 'pot-low' : 'pot-neutral';
+      impliedSpan.innerHTML = `<span class="pot-indicator ${cls}"></span>${fmtK(implied)}`;
+    } else {
+      impliedSpan.innerHTML = '';
+    }
+    // Update EV column to use blended pot
+    const evSpan = row.querySelectorAll('span')[2]; // crude but works
+  });
+}
+
+// ============================================================
+// HAUT LIST & STRATEGY
+// ============================================================
+function renderHautList(){
+  // Compute seed averages
+  const seedAvgs = {};
+  T.forEach(t=>{
+    const s = String(t[1]);
+    if(!seedAvgs[s]) seedAvgs[s] = {sum:0,count:0};
+    seedAvgs[s].sum += t[10];
+    seedAvgs[s].count++;
+  });
+  
+  const hautTeams = T.filter(t=>HAUT.includes(t[2]));
+  let html = '';
+  hautTeams.sort((a,b)=>teamVal(b,currentPot)-teamVal(a,currentPot));
+  
+  // KPIs
+  let kpiHtml = '';
+  hautTeams.forEach(t=>{
+    const val = teamVal(t,currentPot);
+    kpiHtml += `<div class="kpi" style="border-left:3px solid var(--orange);">
+      <div class="label">${t[2]} (${t[0]} ${t[1]})</div>
+      <div class="value">${fmt(val)}</div>
+      <div class="sub">${pct(t[8])} champ | Range: ${fmtK(teamMin(t,currentPot))}–${fmtK(teamMax(t,currentPot))}</div>
+    </div>`;
+  });
+  document.getElementById('hautKpis').innerHTML = kpiHtml;
+  
+  hautTeams.forEach(t=>{
+    const val = teamVal(t,currentPot);
+    const s = String(t[1]);
+    const seedAvg = seedAvgs[s] ? seedAvgs[s].sum/seedAvgs[s].count : val;
+    const pctOfSeed = (val/seedAvg*100);
+    const regionClass = 'region-'+t[0].toLowerCase();
+    html += `<tr>
+      <td class="${regionClass}">${t[0]}</td>
+      <td><span class="seed-badge haut">${t[1]}</span></td>
+      <td style="font-weight:700;color:var(--orange);">${t[2]}</td>
+      <td style="font-weight:700;">${fmt(val)}</td>
+      <td>${fmtK(teamMin(t,currentPot))}–${fmtK(teamMax(t,currentPot))}</td>
+      <td>${pct(t[8])}</td>
+      <td style="color:${pctOfSeed>110?'var(--green)':'var(--muted)'}">${pctOfSeed.toFixed(0)}%</td>
+      <td style="color:var(--muted);font-size:10px;">${t[8]>5?'Title contender':t[8]>1?'Deep run potential':'Upset value'}</td>
+    </tr>`;
+  });
+  document.getElementById('hautTableBody').innerHTML = html;
+  
+  // Best value per seed
+  let bvHtml = '';
+  const seeds = [1,2,3,4,5,6,7,8,9,10,11,12,'13-16'];
+  seeds.forEach(s=>{
+    const ts = T.filter(t=>t[1]==s||(s==='13-16'&&t[1]==='13-16'));
+    if(!ts.length) return;
+    const seedAvg = ts.reduce((sum,t)=>sum+teamVal(t,currentPot),0)/ts.length;
+    const best = ts.reduce((a,b)=>teamVal(a,currentPot)>teamVal(b,currentPot)?a:b);
+    const pctAbove = ((teamVal(best,currentPot)-seedAvg)/seedAvg*100);
+    bvHtml += `<tr>
+      <td><span class="seed-badge">${s}</span></td>
+      <td style="font-weight:600;">${best[2]} <span style="color:var(--muted);font-size:10px;">(${best[0]})</span></td>
+      <td>${fmt(teamVal(best,currentPot))}</td>
+      <td style="color:${pctAbove>15?'var(--green)':'var(--muted)'}">${pctAbove>0?'+':''}${pctAbove.toFixed(0)}%</td>
+    </tr>`;
+  });
+  document.getElementById('bestValueBody').innerHTML = bvHtml;
+  
+  // Portfolio chart
+  if(chartPortfolio) chartPortfolio.destroy();
+  const tierData = [
+    {label:'1-seeds (4)',value:T.filter(t=>t[1]===1).reduce((s,t)=>s+teamVal(t,currentPot),0)/4,color:'rgba(59,130,246,0.8)'},
+    {label:'2-3 seeds (8)',value:T.filter(t=>t[1]===2||t[1]===3).reduce((s,t)=>s+teamVal(t,currentPot),0)/8,color:'rgba(168,85,247,0.8)'},
+    {label:'4-6 seeds (12)',value:T.filter(t=>t[1]>=4&&t[1]<=6).reduce((s,t)=>s+teamVal(t,currentPot),0)/12,color:'rgba(34,197,94,0.8)'},
+    {label:'7-9 seeds (12)',value:T.filter(t=>t[1]>=7&&t[1]<=9).reduce((s,t)=>s+teamVal(t,currentPot),0)/12,color:'rgba(245,158,11,0.8)'},
+    {label:'10-12 seeds (12)',value:T.filter(t=>t[1]>=10&&t[1]<=12).reduce((s,t)=>s+teamVal(t,currentPot),0)/12,color:'rgba(239,68,68,0.8)'},
+    {label:'13-16 groups (4)',value:T.filter(t=>t[1]==='13-16').reduce((s,t)=>s+teamVal(t,currentPot),0)/4,color:'rgba(100,100,100,0.8)'},
+  ];
+  chartPortfolio = new Chart(document.getElementById('chartPortfolio'),{
+    type:'bar',
+    data:{labels:tierData.map(d=>d.label),datasets:[{label:'Avg Value per Team',data:tierData.map(d=>d.value),backgroundColor:tierData.map(d=>d.color),borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'#2a2e3f'}},x:{grid:{display:false}}}}
+  });
+}
+
+// ============================================================
+// HISTORICAL ANALYSIS (all values normalized to 2025 pot = $505,700)
+// ============================================================
+const NORM_POT = 505700; // normalize everything to 2025 pot for apples-to-apples
+
+function renderHistorical(){
+  const yearFilter = document.getElementById('histYear').value;
+  let allData = [];
+
+  ['2023','2024','2025'].forEach(yr=>{
+    if(yearFilter!=='all' && yearFilter!==yr) return;
+    const hist = RAW_DATA.hist[yr];
+    const actualPot = RAW_DATA.pots[yr];
+    const basePot = RAW_DATA.basePots[yr];
+    const scaleFactor = actualPot / basePot;
+    const normFactor = NORM_POT / actualPot; // to normalize to 2025 pot
+
+    hist.forEach(h=>{
+      // h: [region, seed, team, auctionPrice, actualPayout, baseEV, actualPot, basePot]
+      const scaledEV = h[5] * scaleFactor; // EV at actual pot
+      const normEV = scaledEV * normFactor; // EV normalized to $506K
+      const normPrice = h[3] * normFactor; // price normalized
+      const normPayout = h[4] * normFactor; // payout normalized
+      const normNet = normPayout - normPrice;
+      const premiumToEV = scaledEV > 0 ? ((h[3] - scaledEV) / scaledEV * 100) : 0; // % over/under EV
+      const roi = h[3] > 0 ? ((h[4] - h[3]) / h[3] * 100) : 0;
+      allData.push({
+        year:yr, region:h[0], seed:h[1], team:h[2],
+        price:h[3], payout:h[4], // actual dollars
+        scaledEV:scaledEV,
+        normPrice:normPrice, normEV:normEV, normPayout:normPayout, normNet:normNet, // normalized
+        premiumToEV:premiumToEV, roi:roi
+      });
+    });
+  });
+
+  if(!allData.length) return;
+
+  // KPIs
+  const avgROI = allData.reduce((s,d)=>s+d.roi,0)/allData.length;
+  const avgNormNet = allData.reduce((s,d)=>s+d.normNet,0)/allData.length;
+  const avgPremium = allData.reduce((s,d)=>s+d.premiumToEV,0)/allData.length;
+  const best = allData.reduce((a,b)=>a.normNet>b.normNet?a:b);
+  const worst = allData.reduce((a,b)=>a.normNet<b.normNet?a:b);
+
+  document.getElementById('histAvgROI').textContent = avgROI.toFixed(0)+'%';
+  document.getElementById('histAvgROI').className = 'value '+(avgROI>=0?'positive':'negative');
+  document.getElementById('histAvgNetNorm').textContent = fmt(avgNormNet);
+  document.getElementById('histAvgNetNorm').className = 'value '+(avgNormNet>=0?'positive':'negative');
+  document.getElementById('histAvgPremium').textContent = (avgPremium>=0?'+':'')+avgPremium.toFixed(0)+'%';
+  document.getElementById('histAvgPremium').className = 'value '+(avgPremium>0?'negative':'positive');
+  document.getElementById('histBestPurchase').innerHTML = `${fmt(best.normNet)}<div class="sub">${best.team} (${best.year}) — ${best.roi.toFixed(0)}% ROI</div>`;
+  document.getElementById('histWorstPurchase').innerHTML = `${fmt(worst.normNet)}<div class="sub">${worst.team} (${worst.year}) — ${worst.roi.toFixed(0)}% ROI</div>`;
+
+  // Table (all normalized)
+  let html = '';
+  allData.sort((a,b)=>b.normNet-a.normNet);
+  allData.forEach(d=>{
+    const regionClass = 'region-'+d.region.toLowerCase();
+    const premClass = d.premiumToEV>10?'negative':d.premiumToEV<-10?'positive':'';
+    html += `<tr>
+      <td>${d.year}</td>
+      <td class="${regionClass}">${d.region}</td>
+      <td><span class="seed-badge">${d.seed}</span></td>
+      <td>${d.team}</td>
+      <td style="color:var(--muted)">${fmt(d.price)}</td>
+      <td>${fmt(d.normPrice)}</td>
+      <td>${fmt(d.normEV)}</td>
+      <td class="${premClass}" style="font-weight:600;">${d.premiumToEV>=0?'+':''}${d.premiumToEV.toFixed(0)}%</td>
+      <td style="font-weight:700;">${fmt(d.normPayout)}</td>
+      <td class="${d.normNet>=0?'positive':'negative'}" style="font-weight:700;">${fmt(d.normNet)}</td>
+      <td class="${d.roi>=0?'positive':'negative'}">${d.roi.toFixed(0)}%</td>
+    </tr>`;
+  });
+  document.getElementById('histTableBody').innerHTML = html;
+
+  // Chart 1: Avg Net Return by Seed — NORMALIZED
+  const seedNets = {};
+  allData.forEach(d=>{
+    const s = String(d.seed);
+    if(!seedNets[s]) seedNets[s] = {totalNormNet:0,count:0,totalROI:0};
+    seedNets[s].totalNormNet += d.normNet;
+    seedNets[s].count++;
+    seedNets[s].totalROI += d.roi;
+  });
+  const seedLabels = Object.keys(seedNets).sort((a,b)=>seedNum(a)-seedNum(b));
+  const seedNormData = seedLabels.map(s=>seedNets[s].totalNormNet/seedNets[s].count);
+
+  if(chartHistSeed) chartHistSeed.destroy();
+  chartHistSeed = new Chart(document.getElementById('chartHistSeed'),{
+    type:'bar',
+    data:{labels:seedLabels,datasets:[{label:'Avg Norm Net P&L',data:seedNormData,backgroundColor:seedNormData.map(v=>v>=0?'rgba(34,197,94,0.7)':'rgba(239,68,68,0.7)'),borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw)+' (norm to $506K pot)'}}},scales:{y:{ticks:{callback:v=>fmtK(v)},grid:{color:'#2a2e3f'},title:{display:true,text:'Avg Net P&L (Norm $506K)',color:'#8b8d97'}},x:{grid:{display:false}}}}
+  });
+
+  // Chart 1b: Avg Price/EV Ratio by Seed (how much market overpays per seed)
+  const seedPremiums = {};
+  allData.forEach(d=>{
+    const s = String(d.seed);
+    if(!seedPremiums[s]) seedPremiums[s] = {totalPremium:0,count:0,totalPrice:0,totalEV:0};
+    seedPremiums[s].totalPremium += d.premiumToEV;
+    seedPremiums[s].count++;
+    seedPremiums[s].totalPrice += d.normPrice;
+    seedPremiums[s].totalEV += d.normEV;
+  });
+  const premLabels = Object.keys(seedPremiums).sort((a,b)=>seedNum(a)-seedNum(b));
+  const avgPremBySeed = premLabels.map(s=>seedPremiums[s].totalPremium/seedPremiums[s].count);
+  const priceToEVRatio = premLabels.map(s=>seedPremiums[s].totalEV>0 ? (seedPremiums[s].totalPrice/seedPremiums[s].totalEV*100) : 100);
+
+  if(chartSeedPremium) chartSeedPremium.destroy();
+  chartSeedPremium = new Chart(document.getElementById('chartSeedPremium'),{
+    type:'bar',
+    data:{labels:premLabels,datasets:[
+      {label:'Price / EV Ratio',data:priceToEVRatio,backgroundColor:priceToEVRatio.map(v=>v>110?'rgba(239,68,68,0.7)':v<90?'rgba(34,197,94,0.7)':'rgba(59,130,246,0.5)'),borderRadius:4}
+    ]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(0)+'% of EV ('+((ctx.raw-100)>=0?'+':'')+(ctx.raw-100).toFixed(0)+'% premium)'}},annotation:{annotations:{fairLine:{type:'line',yMin:100,yMax:100,borderColor:'rgba(255,255,255,0.3)',borderDash:[5,5]}}}},scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'#2a2e3f'},title:{display:true,text:'Avg Auction Price as % of EV',color:'#8b8d97'},min:60,max:180},x:{grid:{display:false}}}}
+  });
+
+  // Chart 2: Premium to EV (%) vs ROI (%)
+  const scatterPremium = allData.map(d=>({x:d.premiumToEV,y:d.roi,label:d.team+' ('+d.year+')'}));
+  if(chartHistScatter) chartHistScatter.destroy();
+  chartHistScatter = new Chart(document.getElementById('chartHistScatter'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Teams',data:scatterPremium,backgroundColor:scatterPremium.map(d=>d.y>=0?'rgba(34,197,94,0.6)':'rgba(239,68,68,0.5)'),pointRadius:4},
+      {label:'Break Even',data:[{x:-100,y:0},{x:200,y:0}],type:'line',borderColor:'rgba(255,255,255,0.15)',borderDash:[5,5],pointRadius:0},
+      {label:'Fair Price',data:[{x:0,y:-100},{x:0,y:1000}],type:'line',borderColor:'rgba(255,255,255,0.15)',borderDash:[5,5],pointRadius:0}
+    ]},
+    options:{responsive:true,plugins:{tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return d.label?d.label+': Premium '+d.x.toFixed(0)+'% / ROI '+d.y.toFixed(0)+'%':'';}}}},scales:{x:{title:{display:true,text:'Premium to EV (% over/under)',color:'#8b8d97'},ticks:{callback:v=>v+'%'},grid:{color:'#2a2e3f'},min:-110,max:200},y:{title:{display:true,text:'Actual ROI %',color:'#8b8d97'},ticks:{callback:v=>v+'%'},grid:{color:'#2a2e3f'},min:-110,max:500}}}
+  });
+
+  // Chart 3: Price vs EV — normalized to $506K
+  const normScatter = allData.map(d=>({x:d.normEV,y:d.normPrice,label:d.team+' ('+d.year+')'}));
+  if(chartHistNorm) chartHistNorm.destroy();
+  chartHistNorm = new Chart(document.getElementById('chartHistNorm'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Teams (Norm $506K)',data:normScatter,backgroundColor:'rgba(168,85,247,0.5)',pointRadius:4},
+      {label:'Fair Value Line',data:[{x:0,y:0},{x:100000,y:100000}],type:'line',borderColor:'rgba(255,255,255,0.2)',borderDash:[5,5],pointRadius:0}
+    ]},
+    options:{responsive:true,plugins:{tooltip:{callbacks:{label:ctx=>ctx.raw.label+': Price '+fmt(ctx.raw.y)+' / EV '+fmt(ctx.raw.x)+' (norm)'}}},scales:{x:{title:{display:true,text:'EV (Normalized to $506K pot)',color:'#8b8d97'},ticks:{callback:v=>fmtK(v)},grid:{color:'#2a2e3f'}},y:{title:{display:true,text:'Auction Price (Normalized to $506K pot)',color:'#8b8d97'},ticks:{callback:v=>fmtK(v)},grid:{color:'#2a2e3f'}}}}
+  });
+}
+
+document.getElementById('histYear').addEventListener('change',renderHistorical);
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll(){
+  renderKPIs();
+  renderMainTable();
+  renderCharts();
+  renderTracker();
+  renderPortfolio();
+  renderHautList();
+  renderHistorical();
+}
+
+// Starting pot estimate input (independent from valuation slider)
+document.getElementById('startingPotInput').addEventListener('change', ()=>{
+  startingPotEstimate = parseInt(document.getElementById('startingPotInput').value) || 625000;
+  updateLivePot();
+  saveState();
+});
+
+// ============================================================
+// PERSISTENCE (localStorage)
+// ============================================================
+const STORAGE_KEY = 'calcutta2026_state';
+
+function saveState(){
+  const state = {
+    currentPot: currentPot,
+    startingPotEstimate: startingPotEstimate,
+    currentRegion: currentRegion,
+    soldTeams: soldTeams,
+    myTeams: myTeams
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const state = JSON.parse(raw);
+    if(state.currentPot){ currentPot = state.currentPot; }
+    if(state.startingPotEstimate){ startingPotEstimate = state.startingPotEstimate; }
+    if(state.currentRegion){ currentRegion = state.currentRegion; }
+    if(state.soldTeams){ soldTeams = state.soldTeams; }
+    if(state.myTeams){ myTeams = state.myTeams; }
+    // Sync UI controls
+    document.getElementById('potSlider').value = currentPot;
+    document.getElementById('potDisplay').textContent = fmt(currentPot);
+    document.getElementById('startingPotInput').value = startingPotEstimate;
+    document.getElementById('regionFilter').value = currentRegion;
+    return true;
+  } catch(e){ return false; }
+}
+
+// Hook save into all state-changing events (augment existing listeners)
+const _origPotSliderInput = potSlider.oninput;
+potSlider.addEventListener('input', saveState);
+document.getElementById('regionFilter').addEventListener('change', saveState);
+
+// Load saved state before first render
+const hadSavedState = loadState();
+
+renderAll();
+
+if(hadSavedState && Object.keys(soldTeams).length > 0){
+  console.log('Restored '+Object.keys(soldTeams).length+' sold teams and '+Object.keys(myTeams).length+' of your teams from saved state.');
+}
+</script>
+</body>
+</html>

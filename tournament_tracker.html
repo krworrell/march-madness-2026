@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Worrell — 2026 March Madness Tracker</title>
+<style>
+:root{--bg:#0a0e1a;--card:#131829;--card2:#1a2035;--border:#252d45;--text:#e4e6eb;--muted:#7a829e;--accent:#4f8cff;--green:#2dd4a0;--red:#f0506e;--orange:#f5a623;--gold:#ffd700;--south:#f0506e;--west:#4f8cff;--east:#2dd4a0;--midwest:#f5a623;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
+.app{max-width:1500px;margin:0 auto;padding:12px;}
+h1{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.subtitle{color:var(--muted);font-size:12px;margin-top:2px;}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;margin:12px 0;background:var(--card);border-radius:10px;padding:3px;}
+.tab{flex:1;padding:8px;text-align:center;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:600;font-size:12px;transition:all 0.2s;}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--accent);color:#fff;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+
+/* Portfolio Table */
+.portfolio-table{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0;margin-bottom:14px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--card2);color:var(--muted);padding:6px 8px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;position:sticky;top:0;}
+td{padding:5px 8px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--card2);}
+.positive{color:var(--green);}.negative{color:var(--red);}
+.team-strikethrough{text-decoration:line-through;opacity:0.6;}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+.card h3{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--muted);}
+
+/* Filter Toggle */
+.filter-toggle{display:flex;gap:8px;margin-bottom:12px;}
+.toggle-btn{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card2);color:var(--muted);cursor:pointer;font-weight:600;font-size:12px;transition:all 0.2s;}
+.toggle-btn:hover{border-color:var(--accent);}
+.toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* Viewing Guide */
+.game-slot{display:grid;grid-template-columns:60px 50px 1fr 50px 70px 80px;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;}
+.game-slot:hover{background:var(--card2);}
+.game-slot.ours{background:rgba(79,140,255,0.08);border-left:3px solid var(--accent);}
+.game-slot.oursVsOurs{background:rgba(245,166,35,0.08);border-left:3px solid var(--orange);}
+.game-slot.hidden{display:none;}
+.channel{font-weight:700;font-size:11px;padding:2px 6px;border-radius:4px;text-align:center;}
+.channel.CBS{background:#1a5276;color:#fff;}
+.channel.TBS{background:#2c3e50;color:#fff;}
+.channel.TNT{background:#4a235a;color:#fff;}
+.channel.truTV{background:#196f3d;color:#fff;}
+.spread{color:var(--muted);font-size:11px;text-align:center;}
+.team-name{font-weight:600;}
+.team-name.mine{color:var(--accent);}
+.seed-badge{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;font-weight:700;font-size:10px;background:var(--card2);color:var(--text);margin-right:4px;}
+.note{font-size:10px;padding:3px 8px;border-radius:4px;margin-left:6px;}
+.note.root-for{background:rgba(45,212,160,0.15);color:var(--green);}
+.note.root-against{background:rgba(240,80,110,0.15);color:var(--red);}
+.note.watch{background:rgba(245,166,35,0.15);color:var(--orange);}
+.note.conflict{background:rgba(245,166,35,0.25);color:var(--orange);font-weight:700;}
+.importance{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.imp-high{background:var(--red);}
+.imp-med{background:var(--orange);}
+.imp-low{background:var(--green);}
+
+/* Day header */
+.day-header{background:var(--card2);padding:8px 12px;font-weight:700;font-size:13px;border-radius:6px;margin:10px 0 6px;}
+.time-header{background:var(--border);padding:4px 12px;font-size:11px;color:var(--muted);font-weight:600;}
+
+/* Bracket Styles */
+.bracket-container{display:flex;flex-direction:column;gap:20px;}
+.region-bracket{margin-bottom:20px;}
+.region-bracket h3{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text);}
+.region-bracket.south h3{color:var(--south);}
+.region-bracket.west h3{color:var(--west);}
+.region-bracket.east h3{color:var(--east);}
+.region-bracket.midwest h3{color:var(--midwest);}
+
+.bracket-grid{display:grid;grid-template-columns:auto auto auto auto;gap:0;column-gap:16px;align-items:start;}
+.bracket-column{display:flex;flex-direction:column;gap:12px;justify-content:space-around;}
+.bracket-column h4{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;text-align:center;}
+.bracket-payout{font-size:11px;color:var(--green);font-weight:700;text-align:center;margin-bottom:2px;}
+
+.team-slot{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:8px;min-width:120px;cursor:pointer;transition:all 0.2s;font-size:11px;}
+.team-slot:hover{border-color:var(--accent);background:var(--card);}
+.team-slot.empty{color:var(--muted);text-align:center;font-style:italic;}
+.team-slot.our-team{border-left:3px solid var(--accent);background:rgba(79,140,255,0.1);}
+.team-slot.our-team .team-name{color:var(--accent);font-weight:700;}
+.team-slot.eliminated{opacity:0.4;color:var(--muted);text-decoration:line-through;}
+
+.team-slot-content{display:flex;flex-direction:column;gap:2px;}
+.team-slot-name{font-weight:600;color:var(--text);}
+.team-slot-seed{font-size:9px;color:var(--muted);}
+.team-slot-price{font-size:9px;color:var(--accent);margin-top:2px;font-weight:600;}
+
+.final-four-container{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:20px;}
+.final-four-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;align-items:center;}
+.ff-column{display:flex;flex-direction:column;gap:12px;}
+.ff-column h4{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;text-align:center;margin-bottom:4px;}
+.ff-payout{font-size:11px;color:var(--green);font-weight:700;text-align:center;margin-bottom:2px;}
+.ff-champion{grid-column:1/5;text-align:center;}
+.ff-champion h4{margin-bottom:8px;}
+
+/* Grid layouts */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+@media(max-width:1000px){.grid-2,.grid-4{grid-template-columns:1fr;}}
+
+/* Scenario cards */
+.scenario{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;}
+.scenario h4{font-size:13px;font-weight:700;margin-bottom:6px;}
+.scenario .prob{color:var(--muted);font-size:11px;}
+.scenario .payout{font-size:16px;font-weight:700;margin:4px 0;}
+.scenario .path{font-size:11px;color:var(--muted);line-height:1.6;}
+.scenario .path .win{color:var(--green);}
+.scenario .path .loss{color:var(--red);}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>Team Worrell — 2026 March Madness</h1>
+  <div class="subtitle">Pot: $468,987 | Invested: $92,950 | 13 Teams</div>
+</header>
+
+<div class="portfolio-table" id="portfolioTable"></div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="guide">Viewing Guide</div>
+  <div class="tab" data-tab="bracket">Interactive Bracket</div>
+  <div class="tab" data-tab="scenarios">Break-Even Scenarios</div>
+</div>
+
+<div class="tab-content active" id="tab-guide"></div>
+<div class="tab-content" id="tab-bracket"></div>
+<div class="tab-content" id="tab-scenarios"></div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const POT = 468987;
+const PER_WIN = {R1:3517.40,R2:5862.34,S16:11724.68,E8:19931.95,F4:25794.29,Champ:32829.09,Blowout:4689.87};
+const TOTAL_SPENT = 92950;
+
+const MY = {"Iowa St.":24000,"Illinois":19100,"Vanderbilt":12250,"Alabama":8000,"Wisconsin":6900,"UCLA":5100,"Kentucky":3900,"Texas":3400,"Georgia":2800,"Ohio St.":2500,"Clemson":2000,"UCF":2000,"Villanova":1000};
+
+const BRACKET = {
+  SOUTH:[
+    {s1:1,t1:"Florida",s2:16,t2:"Prairie View",date:"Fri 3/20",time:"8:25 PM",ch:"TNT",spread:"FLA -35.5"},
+    {s1:8,t1:"Clemson",s2:9,t2:"Iowa",date:"Fri 3/20",time:"5:50 PM",ch:"TNT",spread:"IOWA -2.5"},
+    {s1:5,t1:"Vanderbilt",s2:12,t2:"McNeese",date:"Thu 3/19",time:"2:15 PM",ch:"truTV",spread:"VAN -12.5"},
+    {s1:4,t1:"Nebraska",s2:13,t2:"Troy",date:"Thu 3/19",time:"11:40 AM",ch:"truTV",spread:"NEB -13.5"},
+    {s1:6,t1:"North Carolina",s2:11,t2:"VCU",date:"Thu 3/19",time:"5:50 PM",ch:"TNT",spread:"UNC -2.5"},
+    {s1:3,t1:"Illinois",s2:14,t2:"Penn",date:"Thu 3/19",time:"8:25 PM",ch:"TNT",spread:"ILL -25.5"},
+    {s1:7,t1:"Saint Mary's",s2:10,t2:"Texas A&M",date:"Thu 3/19",time:"6:35 PM",ch:"truTV",spread:"SMC -3.5"},
+    {s1:2,t1:"Houston",s2:15,t2:"Idaho",date:"Thu 3/19",time:"9:10 PM",ch:"truTV",spread:"HOU -23.5"}
+  ],
+  WEST:[
+    {s1:1,t1:"Arizona",s2:16,t2:"Long Island",date:"Fri 3/20",time:"12:35 PM",ch:"TNT",spread:"ARIZ -30.5"},
+    {s1:8,t1:"Villanova",s2:9,t2:"Utah State",date:"Fri 3/20",time:"3:10 PM",ch:"TNT",spread:"USU -1.5"},
+    {s1:5,t1:"Wisconsin",s2:12,t2:"High Point",date:"Thu 3/19",time:"12:50 PM",ch:"TBS",spread:"WIS -10.5"},
+    {s1:4,t1:"Arkansas",s2:13,t2:"Hawai'i",date:"Thu 3/19",time:"3:25 PM",ch:"TBS",spread:"ARK -15.5"},
+    {s1:6,t1:"BYU",s2:11,t2:"Texas",date:"Thu 3/19",time:"6:25 PM",ch:"TBS",spread:"BYU -2.5"},
+    {s1:3,t1:"Gonzaga",s2:14,t2:"Kennesaw St",date:"Thu 3/19",time:"9:00 PM",ch:"TBS",spread:"GONZ -21.5"},
+    {s1:7,t1:"Miami",s2:10,t2:"Missouri",date:"Fri 3/20",time:"9:10 PM",ch:"truTV",spread:"MIA -1.5"},
+    {s1:2,t1:"Purdue",s2:15,t2:"Queens",date:"Fri 3/20",time:"6:35 PM",ch:"truTV",spread:"PUR -25.5"}
+  ],
+  EAST:[
+    {s1:1,t1:"Duke",s2:16,t2:"Siena",date:"Thu 3/19",time:"1:50 PM",ch:"CBS",spread:"DUKE -27.5"},
+    {s1:8,t1:"Ohio St.",s2:9,t2:"TCU",date:"Thu 3/19",time:"11:15 AM",ch:"CBS",spread:"OSU -2.5"},
+    {s1:5,t1:"St. John's",s2:12,t2:"Northern Iowa",date:"Fri 3/20",time:"6:10 PM",ch:"CBS",spread:"SJU -9.5"},
+    {s1:4,t1:"Kansas",s2:13,t2:"CA Baptist",date:"Fri 3/20",time:"8:45 PM",ch:"CBS",spread:"KU -14.5"},
+    {s1:6,t1:"Louisville",s2:11,t2:"South Florida",date:"Thu 3/19",time:"12:30 PM",ch:"TNT",spread:"LOU -4.5"},
+    {s1:3,t1:"Michigan St",s2:14,t2:"N Dakota St",date:"Thu 3/19",time:"3:05 PM",ch:"TNT",spread:"MSU -16.5"},
+    {s1:7,t1:"UCLA",s2:10,t2:"UCF",date:"Fri 3/20",time:"6:25 PM",ch:"TBS",spread:"UCLA -5.5"},
+    {s1:2,t1:"UConn",s2:15,t2:"Furman",date:"Fri 3/20",time:"9:00 PM",ch:"TBS",spread:"CONN -20.5"}
+  ],
+  MIDWEST:[
+    {s1:1,t1:"Michigan",s2:16,t2:"Howard",date:"Thu 3/19",time:"6:10 PM",ch:"CBS",spread:"MICH -30.5"},
+    {s1:8,t1:"Georgia",s2:9,t2:"Saint Louis",date:"Thu 3/19",time:"8:45 PM",ch:"CBS",spread:"UGA -2.5"},
+    {s1:5,t1:"Texas Tech",s2:12,t2:"Akron",date:"Fri 3/20",time:"11:40 AM",ch:"truTV",spread:"TTU -7.5"},
+    {s1:4,t1:"Alabama",s2:13,t2:"Hofstra",date:"Fri 3/20",time:"2:15 PM",ch:"truTV",spread:"ALA -11.5"},
+    {s1:6,t1:"Tennessee",s2:11,t2:"Miami OH",date:"Fri 3/20",time:"3:25 PM",ch:"TBS",spread:"TENN -11.5"},
+    {s1:3,t1:"Virginia",s2:14,t2:"Wright St",date:"Fri 3/20",time:"12:50 PM",ch:"TBS",spread:"UVA -18.5"},
+    {s1:7,t1:"Kentucky",s2:10,t2:"Santa Clara",date:"Fri 3/20",time:"11:15 AM",ch:"CBS",spread:"UK -3.5"},
+    {s1:2,t1:"Iowa St.",s2:15,t2:"Tennessee St",date:"Fri 3/20",time:"1:50 PM",ch:"CBS",spread:"ISU -24.5"}
+  ]
+};
+
+// Team probabilities
+const TEAM_PROBS = {
+  "Iowa St.": {r1:.978,r2:.749,s16:.497,e8:.244,f4:.126,champ:.060},
+  "Illinois": {r1:.966,r2:.766,s16:.374,e8:.197,f4:.094,champ:.043},
+  "Vanderbilt": {r1:.819,r2:.445,s16:.172,e8:.068,f4:.026,champ:.010},
+  "Alabama": {r1:.881,r2:.590,s16:.191,e8:.086,f4:.035,champ:.013},
+  "Wisconsin": {r1:.804,r2:.371,s16:.102,e8:.041,f4:.014,champ:.005},
+  "UCLA": {r1:.685,r2:.239,s16:.100,e8:.027,f4:.008,champ:.003},
+  "Kentucky": {r1:.649,r2:.181,s16:.085,e8:.028,f4:.010,champ:.003},
+  "Texas": {r1:.412,r2:.114,s16:.036,e8:.009,f4:.002,champ:.001},
+  "Georgia": {r1:.561,r2:.092,s16:.037,e8:.012,f4:.003,champ:.001},
+  "Ohio St.": {r1:.628,r2:.108,s16:.049,e8:.021,f4:.007,champ:.002},
+  "Clemson": {r1:.453,r2:.081,s16:.032,e8:.009,f4:.003,champ:.001},
+  "UCF": {r1:.315,r2:.070,s16:.019,e8:.003,f4:.001,champ:.000},
+  "Villanova": {r1:.464,r2:.064,s16:.026,e8:.008,f4:.002,champ:.001}
+};
+
+// New picks model: {region-round-slot: teamName, ...}
+let picks = JSON.parse(localStorage.getItem('calcutta2026_picks') || '{}');
+function savePicks(){ localStorage.setItem('calcutta2026_picks', JSON.stringify(picks)); }
+
+const isMine = t => MY.hasOwnProperty(t);
+const fmt = n => '$' + Math.round(n).toLocaleString();
+// Escape team names for use in onclick HTML attributes (handles apostrophes)
+const esc = s => s.replace(/'/g, "\\'");
+
+// Get team info
+function findTeamInfo(teamName) {
+  for (const [region, games] of Object.entries(BRACKET)) {
+    for (const game of games) {
+      if (game.t1 === teamName) return {name: teamName, seed: game.s1, region};
+      if (game.t2 === teamName) return {name: teamName, seed: game.s2, region};
+    }
+  }
+  return null;
+}
+
+// Calculate payouts for a team based on ALL picks (including F4 and Champ)
+function getTeamPayouts(teamName) {
+  let totalPayout = 0;
+  if (!isMine(teamName)) return 0;
+
+  // Scan ALL pick keys for this team name
+  // Round payout mapping based on key pattern
+  Object.entries(picks).forEach(([key, val]) => {
+    if (val !== teamName) return;
+    if (key.includes('-r1-')) totalPayout += PER_WIN.R1;
+    else if (key.includes('-r2-')) totalPayout += PER_WIN.R2;
+    else if (key.includes('-s16-')) totalPayout += PER_WIN.S16;
+    else if (key.includes('-e8-')) totalPayout += PER_WIN.E8;
+    else if (key.startsWith('ff-')) totalPayout += PER_WIN.F4;
+    else if (key.startsWith('champ-')) totalPayout += PER_WIN.Champ;
+  });
+
+  return totalPayout;
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+// PORTFOLIO TABLE
+// ============================================================
+function renderPortfolio(){
+  let rows = [];
+
+  // Track eliminated teams
+  const eliminated = new Set();
+  Object.entries(picks).forEach(([key, teamName]) => {
+    // If a team is picked in a later round, any team in earlier R1 slot that conflicts is eliminated
+  });
+
+  // Build table rows for each team
+  Object.entries(MY).forEach(([teamName, price]) => {
+    const info = findTeamInfo(teamName);
+    const payout = getTeamPayouts(teamName);
+    const netBalance = payout - price;
+    const recovered = price > 0 ? (payout / price * 100) : 0;
+
+    rows.push({
+      teamName,
+      region: info ? info.region : '?',
+      seed: info ? info.seed : 0,
+      price,
+      payout,
+      netBalance,
+      recovered,
+      isEliminated: false
+    });
+  });
+
+  let html = '<table><thead><tr><th>Team Name</th><th>Region</th><th>Seed</th><th>Purchase Price</th><th>Won to Date</th><th>Potential Winnings</th><th>Net Balance</th><th>% Recovered</th></tr></thead><tbody>';
+
+  let totalPrice = 0, totalWon = 0, totalPotential = 0, totalNet = 0;
+
+  rows.forEach(row => {
+    totalPrice += row.price;
+    totalPotential += row.payout;
+    totalNet += row.netBalance;
+
+    const rowClass = row.isEliminated ? 'team-strikethrough' : '';
+    const balanceClass = row.netBalance >= 0 ? 'positive' : 'negative';
+
+    html += `<tr>
+      <td><span class="${rowClass}">${row.teamName}</span></td>
+      <td>${row.region}</td>
+      <td>#${row.seed}</td>
+      <td>${fmt(row.price)}</td>
+      <td>$0</td>
+      <td class="positive">${fmt(row.payout)}</td>
+      <td class="${balanceClass}">${row.netBalance >= 0 ? '+' : ''}${fmt(row.netBalance)}</td>
+      <td>${row.recovered.toFixed(1)}%</td>
+    </tr>`;
+  });
+
+  html += `<tr style="font-weight:700;background:var(--card2);">
+    <td>TOTAL</td>
+    <td></td>
+    <td></td>
+    <td>${fmt(totalPrice)}</td>
+    <td>$0</td>
+    <td class="positive">${fmt(totalPotential)}</td>
+    <td class="${totalNet >= 0 ? 'positive' : 'negative'}">${totalNet >= 0 ? '+' : ''}${fmt(totalNet)}</td>
+    <td>${totalPrice > 0 ? (totalPotential / totalPrice * 100).toFixed(1) : 0}%</td>
+  </tr>`;
+
+  html += '</tbody></table>';
+
+  document.getElementById('portfolioTable').innerHTML = html;
+}
+
+// ============================================================
+// VIEWING GUIDE
+// ============================================================
+function renderGuide(){
+  let allGames = [];
+  Object.entries(BRACKET).forEach(([region, games])=>{
+    games.forEach((g,i)=>{
+      const t1Mine = isMine(g.t1), t2Mine = isMine(g.t2);
+      const bothMine = t1Mine && t2Mine;
+
+      let notes = [];
+      const pairIdx = Math.floor(i / 2);
+      const partnerIdx = i % 2 === 0 ? i + 1 : i - 1;
+      const partner = games[partnerIdx];
+
+      if(t1Mine || t2Mine){
+        const myTeam = t1Mine ? g.t1 : g.t2;
+        const partnerT1Mine = isMine(partner.t1);
+        const partnerT2Mine = isMine(partner.t2);
+
+        if(!partnerT1Mine && !partnerT2Mine){
+          const easier = partner.s1 > partner.s2 ? partner.t1 : partner.t2;
+          const easierSeed = Math.max(partner.s1, partner.s2);
+          notes.push({type:'root-for', text:`Root for ${easierSeed}-seed ${easier} (easier R2 matchup)`, imp:'low'});
+        } else if(partnerT1Mine || partnerT2Mine){
+          const otherMyTeam = partnerT1Mine ? partner.t1 : partner.t2;
+          notes.push({type:'watch', text:`R2 could match ${myTeam} vs ${otherMyTeam} (both ours!)`, imp:'med'});
+        }
+      }
+
+      if(bothMine){
+        notes.unshift({type:'conflict', text:`Both teams are ours! Guaranteed R1 win + loss.`, imp:'high'});
+      }
+
+      allGames.push({...g, region, gameIdx:i, t1Mine, t2Mine, bothMine, notes});
+    });
+  });
+
+  const timeToMin = t => {
+    const [time, ampm] = t.split(' ');
+    let [h, m] = time.split(':').map(Number);
+    if(ampm === 'PM' && h !== 12) h += 12;
+    if(ampm === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+  };
+
+  const dayOrder = d => d.startsWith('Thu') ? 0 : 1;
+  allGames.sort((a,b) => dayOrder(a.date) - dayOrder(b.date) || timeToMin(a.time) - timeToMin(b.time));
+
+  let html = '<div class="card"><h3>Round 1 Viewing Guide</h3>';
+
+  html += `<div class="filter-toggle">
+    <button class="toggle-btn" id="filterAll" onclick="toggleFilter('all')">All Games</button>
+    <button class="toggle-btn active" id="filterOurs" onclick="toggleFilter('ours')">Our Games Only</button>
+  </div>`;
+
+  html += `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
+    <span style="display:inline-block;width:10px;height:10px;background:rgba(79,140,255,0.15);border-left:3px solid var(--accent);margin-right:4px;"></span> Our team playing
+    <span style="display:inline-block;width:10px;height:10px;background:rgba(245,166,35,0.15);border-left:3px solid var(--orange);margin:0 4px 0 12px;"></span> Both teams are ours
+  </div>`;
+
+  html += `<div style="display:grid;grid-template-columns:60px 50px 1fr 80px;padding:4px 10px;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">
+    <div>Time</div><div>TV</div><div>Matchup</div><div>Spread</div>
+  </div>`;
+  html += '<div id="gamesList">';
+
+  let currentDay = '';
+  allGames.forEach(g => {
+    if(g.date !== currentDay){
+      currentDay = g.date;
+      html += `<div class="day-header">${g.date === 'Thu 3/19' ? 'THURSDAY, MARCH 19' : 'FRIDAY, MARCH 20'}</div>`;
+    }
+
+    const cls = g.bothMine ? 'game-slot oursVsOurs' : (g.t1Mine || g.t2Mine) ? 'game-slot ours' : 'game-slot';
+    const regionColor = {'SOUTH':'var(--south)','WEST':'var(--west)','EAST':'var(--east)','MIDWEST':'var(--midwest)'}[g.region];
+
+    let notesHtml = '';
+    g.notes.forEach(n => {
+      const impCls = n.imp === 'high' ? 'imp-high' : n.imp === 'med' ? 'imp-med' : 'imp-low';
+      notesHtml += `<span class="note ${n.type}"><span class="importance ${impCls}"></span>${n.text}</span>`;
+    });
+
+    const filterClass = (g.t1Mine || g.t2Mine) ? 'our-game' : '';
+    html += `<div class="${cls}" data-filter="all ${filterClass}">
+      <span style="font-weight:600;font-size:11px;">${g.time}</span>
+      <span class="channel ${g.ch}">${g.ch}</span>
+      <div>
+        <span class="seed-badge">${g.s1}</span><span class="team-name ${g.t1Mine?'mine':''}">${g.t1}</span>
+        ${g.t1Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t1])})</span>`:''}
+        <span style="color:var(--muted);margin:0 4px;">vs</span>
+        <span class="seed-badge">${g.s2}</span><span class="team-name ${g.t2Mine?'mine':''}">${g.t2}</span>
+        ${g.t2Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t2])})</span>`:''}
+        <span style="color:var(--muted);font-size:10px;margin-left:8px;border-left:2px solid ${regionColor};padding-left:6px;">${g.region}</span>
+        ${notesHtml}
+      </div>
+      <span class="spread">${g.spread}</span>
+    </div>`;
+  });
+
+  html += '</div></div>';
+  document.getElementById('tab-guide').innerHTML = html;
+
+  window.toggleFilter = function(mode) {
+    document.getElementById('filterAll').classList.remove('active');
+    document.getElementById('filterOurs').classList.remove('active');
+    if (mode === 'all') {
+      document.getElementById('filterAll').classList.add('active');
+      document.querySelectorAll('#gamesList > *').forEach(el => el.style.display = '');
+    } else {
+      document.getElementById('filterOurs').classList.add('active');
+      document.querySelectorAll('#gamesList > *').forEach(el => {
+        if (el.className.includes('day-header')) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = el.dataset.filter && el.dataset.filter.includes('our-game') ? 'grid' : 'none';
+        }
+      });
+    }
+  };
+  // Apply default filter on load
+  setTimeout(() => toggleFilter('ours'), 0);
+}
+
+// ============================================================
+// INTERACTIVE BRACKET
+// ============================================================
+function renderBracket(){
+  let html = '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;"><button onclick="clearAllPicks()" style="background:var(--card2);border:1px solid var(--border);color:var(--red);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;">Clear All Picks</button></div>';
+  html += '<div class="bracket-container">';
+
+  const regionList = ['SOUTH', 'WEST', 'EAST', 'MIDWEST'];
+  const regionClasses = {SOUTH: 'south', WEST: 'west', EAST: 'east', MIDWEST: 'midwest'};
+
+  regionList.forEach(region => {
+    const games = BRACKET[region];
+    html += `<div class="region-bracket ${regionClasses[region]}"><h3>${region} REGION</h3>`;
+    html += '<div class="bracket-grid">';
+
+    // R1: 8 matchups
+    html += '<div class="bracket-column">';
+    html += '<div><div class="bracket-payout">R1 Win: ' + fmt(PER_WIN.R1) + '</div><h4>R1 (8)</h4></div>';
+    for (let i = 0; i < 8; i++) {
+      const g = games[i];
+      const t1Key = `${region}-r1-${i}`;
+      const t2Key = `${region}-r1-${i}`;
+
+      const t1Picked = picks[t1Key] === g.t1;
+      const t2Picked = picks[t2Key] === g.t2;
+
+      const t1Mine = isMine(g.t1);
+      const t2Mine = isMine(g.t2);
+
+      html += '<div style="display:flex;gap:2px;flex-direction:column;">';
+
+      html += `<div class="team-slot ${t2Picked ? 'eliminated' : ''} ${t1Mine ? 'our-team' : ''}" onclick="pickTeam('${region}-r1-${i}','${esc(g.t1)}')">
+        <div class="team-slot-content">
+          <div class="team-slot-name">${t1Picked ? '✓ ' : ''}${g.t1}</div>
+          <div class="team-slot-seed">#${g.s1}</div>
+          ${t1Mine ? `<div class="team-slot-price">${fmt(MY[g.t1])}</div>` : ''}
+        </div>
+      </div>`;
+
+      html += `<div class="team-slot ${t1Picked ? 'eliminated' : ''} ${t2Mine ? 'our-team' : ''}" onclick="pickTeam('${region}-r1-${i}','${esc(g.t2)}')">
+        <div class="team-slot-content">
+          <div class="team-slot-name">${t2Picked ? '✓ ' : ''}${g.t2}</div>
+          <div class="team-slot-seed">#${g.s2}</div>
+          ${t2Mine ? `<div class="team-slot-price">${fmt(MY[g.t2])}</div>` : ''}
+        </div>
+      </div>`;
+
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // R2: 4 matchups
+    html += '<div class="bracket-column">';
+    html += '<div><div class="bracket-payout">R2 Win: ' + fmt(PER_WIN.R2) + '</div><h4>R2 (4)</h4></div>';
+    const r2Pairs = [[0,1],[2,3],[4,5],[6,7]];
+    for (let pIdx = 0; pIdx < 4; pIdx++) {
+      const [g1Idx, g2Idx] = r2Pairs[pIdx];
+      const r2Key = `${region}-r2-${pIdx}`;
+
+      const r2t1 = picks[`${region}-r1-${g1Idx}`];
+      const r2t2 = picks[`${region}-r1-${g2Idx}`];
+
+      const r2Picked = picks[r2Key];
+      const r2t1Picked = r2Picked === r2t1;
+      const r2t2Picked = r2Picked === r2t2;
+
+      let r2t1Mine = false, r2t2Mine = false;
+      if (r2t1) r2t1Mine = isMine(r2t1);
+      if (r2t2) r2t2Mine = isMine(r2t2);
+
+      let r2t1Seed = null, r2t2Seed = null;
+      if (r2t1) {
+        const info = findTeamInfo(r2t1);
+        r2t1Seed = info ? info.seed : 0;
+      }
+      if (r2t2) {
+        const info = findTeamInfo(r2t2);
+        r2t2Seed = info ? info.seed : 0;
+      }
+
+      html += '<div style="display:flex;gap:2px;flex-direction:column;">';
+
+      if (r2t1) {
+        html += `<div class="team-slot ${r2t2Picked ? 'eliminated' : ''} ${r2t1Mine ? 'our-team' : ''}" onclick="pickTeam('${r2Key}','${esc(r2t1)}')">
+          <div class="team-slot-content">
+            <div class="team-slot-name">${r2t1Picked ? '✓ ' : ''}${r2t1}</div>
+            <div class="team-slot-seed">#${r2t1Seed}</div>
+            ${r2t1Mine ? `<div class="team-slot-price">${fmt(MY[r2t1])}</div>` : ''}
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="team-slot empty">TBD</div>`;
+      }
+
+      if (r2t2) {
+        html += `<div class="team-slot ${r2t1Picked ? 'eliminated' : ''} ${r2t2Mine ? 'our-team' : ''}" onclick="pickTeam('${r2Key}','${esc(r2t2)}')">
+          <div class="team-slot-content">
+            <div class="team-slot-name">${r2t2Picked ? '✓ ' : ''}${r2t2}</div>
+            <div class="team-slot-seed">#${r2t2Seed}</div>
+            ${r2t2Mine ? `<div class="team-slot-price">${fmt(MY[r2t2])}</div>` : ''}
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="team-slot empty">TBD</div>`;
+      }
+
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // S16: 2 matchups
+    html += '<div class="bracket-column">';
+    html += '<div><div class="bracket-payout">S16 Win: ' + fmt(PER_WIN.S16) + '</div><h4>S16 (2)</h4></div>';
+    const s16Pairs = [[0,1],[2,3]];
+    for (let sIdx = 0; sIdx < 2; sIdx++) {
+      const [r2Idx1, r2Idx2] = s16Pairs[sIdx];
+      const s16Key = `${region}-s16-${sIdx}`;
+
+      const s16t1 = picks[`${region}-r2-${r2Idx1}`];
+      const s16t2 = picks[`${region}-r2-${r2Idx2}`];
+
+      const s16Picked = picks[s16Key];
+      const s16t1Picked = s16Picked === s16t1;
+      const s16t2Picked = s16Picked === s16t2;
+
+      let s16t1Mine = false, s16t2Mine = false;
+      if (s16t1) s16t1Mine = isMine(s16t1);
+      if (s16t2) s16t2Mine = isMine(s16t2);
+
+      let s16t1Seed = null, s16t2Seed = null;
+      if (s16t1) {
+        const info = findTeamInfo(s16t1);
+        s16t1Seed = info ? info.seed : 0;
+      }
+      if (s16t2) {
+        const info = findTeamInfo(s16t2);
+        s16t2Seed = info ? info.seed : 0;
+      }
+
+      html += '<div style="display:flex;gap:2px;flex-direction:column;">';
+
+      if (s16t1) {
+        html += `<div class="team-slot ${s16t2Picked ? 'eliminated' : ''} ${s16t1Mine ? 'our-team' : ''}" onclick="pickTeam('${s16Key}','${esc(s16t1)}')">
+          <div class="team-slot-content">
+            <div class="team-slot-name">${s16t1Picked ? '✓ ' : ''}${s16t1}</div>
+            <div class="team-slot-seed">#${s16t1Seed}</div>
+            ${s16t1Mine ? `<div class="team-slot-price">${fmt(MY[s16t1])}</div>` : ''}
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="team-slot empty">TBD</div>`;
+      }
+
+      if (s16t2) {
+        html += `<div class="team-slot ${s16t1Picked ? 'eliminated' : ''} ${s16t2Mine ? 'our-team' : ''}" onclick="pickTeam('${s16Key}','${esc(s16t2)}')">
+          <div class="team-slot-content">
+            <div class="team-slot-name">${s16t2Picked ? '✓ ' : ''}${s16t2}</div>
+            <div class="team-slot-seed">#${s16t2Seed}</div>
+            ${s16t2Mine ? `<div class="team-slot-price">${fmt(MY[s16t2])}</div>` : ''}
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="team-slot empty">TBD</div>`;
+      }
+
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // E8: 1 matchup
+    html += '<div class="bracket-column">';
+    html += '<div><div class="bracket-payout">E8 Win: ' + fmt(PER_WIN.E8) + '</div><h4>E8 (1)</h4></div>';
+    const e8Key = `${region}-e8-0`;
+
+    const e8t1 = picks[`${region}-s16-0`];
+    const e8t2 = picks[`${region}-s16-1`];
+
+    const e8Picked = picks[e8Key];
+    const e8t1Picked = e8Picked === e8t1;
+    const e8t2Picked = e8Picked === e8t2;
+
+    let e8t1Mine = false, e8t2Mine = false;
+    if (e8t1) e8t1Mine = isMine(e8t1);
+    if (e8t2) e8t2Mine = isMine(e8t2);
+
+    let e8t1Seed = null, e8t2Seed = null;
+    if (e8t1) {
+      const info = findTeamInfo(e8t1);
+      e8t1Seed = info ? info.seed : 0;
+    }
+    if (e8t2) {
+      const info = findTeamInfo(e8t2);
+      e8t2Seed = info ? info.seed : 0;
+    }
+
+    html += '<div style="display:flex;gap:2px;flex-direction:column;">';
+
+    if (e8t1) {
+      html += `<div class="team-slot ${e8t2Picked ? 'eliminated' : ''} ${e8t1Mine ? 'our-team' : ''}" onclick="pickTeam('${e8Key}','${esc(e8t1)}')">
+        <div class="team-slot-content">
+          <div class="team-slot-name">${e8t1Picked ? '✓ ' : ''}${e8t1}</div>
+          <div class="team-slot-seed">#${e8t1Seed}</div>
+          ${e8t1Mine ? `<div class="team-slot-price">${fmt(MY[e8t1])}</div>` : ''}
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="team-slot empty">TBD</div>`;
+    }
+
+    if (e8t2) {
+      html += `<div class="team-slot ${e8t1Picked ? 'eliminated' : ''} ${e8t2Mine ? 'our-team' : ''}" onclick="pickTeam('${e8Key}','${esc(e8t2)}')">
+        <div class="team-slot-content">
+          <div class="team-slot-name">${e8t2Picked ? '✓ ' : ''}${e8t2}</div>
+          <div class="team-slot-seed">#${e8t2Seed}</div>
+          ${e8t2Mine ? `<div class="team-slot-price">${fmt(MY[e8t2])}</div>` : ''}
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="team-slot empty">TBD</div>`;
+    }
+
+    html += '</div></div>';
+
+    html += '</div></div>';
+  });
+
+  // Final Four section
+  html += '<div class="final-four-container"><h3 style="margin-bottom:16px;">FINAL FOUR & CHAMPIONSHIP</h3>';
+  html += '<div class="final-four-grid">';
+
+  // F4 - 1: South E8 winner vs East E8 winner
+  const southE8 = picks['SOUTH-e8-0'];
+  const eastE8 = picks['EAST-e8-0'];
+  const ff0Key = 'ff-0';
+  const ff0Picked = picks[ff0Key];
+  const ff0t1Picked = ff0Picked === southE8;
+  const ff0t2Picked = ff0Picked === eastE8;
+
+  html += '<div class="ff-column"><div><div class="ff-payout">F4 Win: ' + fmt(PER_WIN.F4) + '</div><h4>F4 - 1</h4></div>';
+  if (southE8) {
+    const info = findTeamInfo(southE8);
+    html += `<div class="team-slot ${ff0t2Picked ? 'eliminated' : ''} ${isMine(southE8) ? 'our-team' : ''}" onclick="pickTeam('${ff0Key}','${esc(southE8)}')">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${ff0t1Picked ? '✓ ' : ''}${southE8}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  if (eastE8) {
+    const info = findTeamInfo(eastE8);
+    html += `<div class="team-slot ${ff0t1Picked ? 'eliminated' : ''} ${isMine(eastE8) ? 'our-team' : ''}" onclick="pickTeam('${ff0Key}','${esc(eastE8)}')">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${ff0t2Picked ? '✓ ' : ''}${eastE8}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  html += '</div>';
+
+  // F4 - 2: West E8 winner vs Midwest E8 winner
+  const westE8 = picks['WEST-e8-0'];
+  const midwestE8 = picks['MIDWEST-e8-0'];
+  const ff1Key = 'ff-1';
+  const ff1Picked = picks[ff1Key];
+  const ff1t1Picked = ff1Picked === westE8;
+  const ff1t2Picked = ff1Picked === midwestE8;
+
+  html += '<div class="ff-column"><div><div class="ff-payout">F4 Win: ' + fmt(PER_WIN.F4) + '</div><h4>F4 - 2</h4></div>';
+  if (westE8) {
+    const info = findTeamInfo(westE8);
+    html += `<div class="team-slot ${ff1t2Picked ? 'eliminated' : ''} ${isMine(westE8) ? 'our-team' : ''}" onclick="pickTeam('${ff1Key}','${esc(westE8)}')">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${ff1t1Picked ? '✓ ' : ''}${westE8}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  if (midwestE8) {
+    const info = findTeamInfo(midwestE8);
+    html += `<div class="team-slot ${ff1t1Picked ? 'eliminated' : ''} ${isMine(midwestE8) ? 'our-team' : ''}" onclick="pickTeam('${ff1Key}','${esc(midwestE8)}')">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${ff1t2Picked ? '✓ ' : ''}${midwestE8}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  html += '</div>';
+
+  // Championship: F4 winner 1 vs F4 winner 2
+  const champKey = 'champ-0';
+  const ff0Winner = picks[ff0Key];
+  const ff1Winner = picks[ff1Key];
+  const champPicked = picks[champKey];
+  const champt1Picked = champPicked === ff0Winner;
+  const champt2Picked = champPicked === ff1Winner;
+
+  html += '<div class="ff-column"><div><div class="ff-payout">Champ: ' + fmt(PER_WIN.Champ) + '</div><h4>Championship</h4></div>';
+  if (ff0Winner) {
+    const info = findTeamInfo(ff0Winner);
+    html += `<div class="team-slot ${champt2Picked ? 'eliminated' : ''} ${isMine(ff0Winner) ? 'our-team' : ''}" onclick="pickTeam('${champKey}','${esc(ff0Winner)}')">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${champt1Picked ? '✓ ' : ''}${ff0Winner}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  if (ff1Winner) {
+    const info = findTeamInfo(ff1Winner);
+    html += `<div class="team-slot ${champt1Picked ? 'eliminated' : ''} ${isMine(ff1Winner) ? 'our-team' : ''}" onclick="pickTeam('${champKey}','${esc(ff1Winner)}')">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${champt2Picked ? '✓ ' : ''}${ff1Winner}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  html += '</div>';
+
+  // Champion
+  const champion = picks[champKey];
+  html += '<div class="ff-column ff-champion"><div><h4>Champion</h4></div>';
+  if (champion) {
+    const info = findTeamInfo(champion);
+    html += `<div class="team-slot ${isMine(champion) ? 'our-team' : ''}" style="text-align:center;">
+      <div class="team-slot-content">
+        <div class="team-slot-name">${champion}</div>
+        <div class="team-slot-seed">#${info ? info.seed : 0}</div>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="team-slot empty">TBD</div>`;
+  }
+  html += '</div>';
+
+  html += '</div></div>';
+
+  html += '</div>';
+  document.getElementById('tab-bracket').innerHTML = html;
+}
+
+function pickTeam(key, teamName) {
+  // Toggle: if already picked this team, deselect
+  if (picks[key] === teamName) {
+    delete picks[key];
+    // Also cascade-remove this team from all later rounds
+    cascadeRemove(teamName);
+    savePicks();
+    renderBracket();
+    renderPortfolio();
+    return;
+  }
+
+  // If picking a different team, first remove the OLD pick's downstream appearances
+  const oldPick = picks[key];
+  if (oldPick) {
+    cascadeRemove(oldPick);
+  }
+
+  picks[key] = teamName;
+
+  // Find the loser (the other team in this matchup) and cascade-remove them
+  // The loser is whoever was the other option in this slot
+  // We don't need to explicitly find them — cascadeRemove handles it by scanning all keys
+
+  savePicks();
+  renderBracket();
+  renderPortfolio();
+}
+
+// Remove a team from all picks globally (used when they lose or are deselected)
+function cascadeRemove(teamName) {
+  Object.keys(picks).forEach(pk => {
+    if (picks[pk] === teamName) {
+      // Don't remove from the round where they were first picked (their win)
+      // DO remove from all LATER rounds
+      // Actually, we want to remove from downstream only. But since we don't know
+      // the "origin" easily, we remove from all rounds AFTER R1 for regional keys,
+      // and from ff/champ keys
+      if (pk.includes('-r2-') || pk.includes('-s16-') || pk.includes('-e8-') || pk.startsWith('ff-') || pk.startsWith('champ-')) {
+        delete picks[pk];
+      }
+    }
+  });
+}
+
+function clearAllPicks() {
+  picks = {};
+  savePicks();
+  renderBracket();
+  renderPortfolio();
+}
+
+// ============================================================
+// BREAK-EVEN SCENARIOS
+// ============================================================
+function renderScenarios(){
+  const breakEvenTarget = TOTAL_SPENT;
+
+  // 3 DOWNSIDE scenarios (lose money), then 3 UPSIDE scenarios (make money)
+  const scenarios = [
+    // --- DOWNSIDE ---
+    {
+      title: "Upset City (~50% Recovery)",
+      description: "Rough R1 — lose Texas, UCF, Clemson, Villanova, Georgia (only 8 R1 wins). Iowa St. wins R2, Illinois pushes to S16 before losing. Half our money back.",
+      type: "downside",
+      wins: {R1: 8, R2: 1, S16: 1},
+      payout: 8 * PER_WIN.R1 + 1 * PER_WIN.R2 + 1 * PER_WIN.S16,
+      prob: "~8%"
+    },
+    {
+      title: "Solid R1 but Shallow (~75% Recovery)",
+      description: "Win 10 R1 games as expected. Iowa St. and Illinois both win R2, both make S16 but neither survives to E8. Breadth without the big payout to push us over.",
+      type: "downside",
+      wins: {R1: 10, R2: 2, S16: 2},
+      payout: 10 * PER_WIN.R1 + 2 * PER_WIN.R2 + 2 * PER_WIN.S16,
+      prob: "~12%"
+    },
+    {
+      title: "Almost There (~90% Recovery)",
+      description: "Strong R1 (12 wins — only UCF loses). Iowa St., Illinois, and Alabama all win R2. Iowa St. and Illinois make S16 but both lose. Agonizingly close to break-even.",
+      type: "downside",
+      wins: {R1: 12, R2: 3, S16: 2},
+      payout: 12 * PER_WIN.R1 + 3 * PER_WIN.R2 + 2 * PER_WIN.S16,
+      prob: "~7%"
+    },
+    // --- UPSIDE ---
+    {
+      title: "Solid Return: Win 11 R1 + Illinois Elite 8 + Iowa St. Sweet 16",
+      description: "Strong R1 showing, Illinois goes on a run to E8, Iowa St. makes Sweet 16. Two deep-ish runs plus breadth. ~$12K profit.",
+      type: "upside",
+      wins: {R1: 11, R2: 3, S16: 2, E8: 1},
+      payout: 11 * PER_WIN.R1 + 3 * PER_WIN.R2 + 2 * PER_WIN.S16 + 1 * PER_WIN.E8,
+      prob: "~5%"
+    },
+    {
+      title: "Iowa St. Final Four + Illinois Sweet 16 + Depth",
+      description: "Iowa St. reaches the Final Four for a massive payout. Illinois and one other team make S16. 11 R1 wins. ~$50K profit.",
+      type: "upside",
+      wins: {R1: 11, R2: 3, S16: 2, E8: 1, F4: 1},
+      payout: 11 * PER_WIN.R1 + 3 * PER_WIN.R2 + 2 * PER_WIN.S16 + 1 * PER_WIN.E8 + 1 * PER_WIN.F4,
+      prob: "~2%"
+    },
+    {
+      title: "Dream: Iowa St. Championship + Illinois E8",
+      description: "Iowa State wins every round through the championship ($102K from Iowa St. alone). Illinois makes Elite 8. 12 R1 wins. Total portfolio payout ~$195K.",
+      type: "upside",
+      wins: {R1: 12, R2: 3, S16: 2, E8: 2, F4: 1, Champ: 1},
+      payout: 12 * PER_WIN.R1 + 3 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4 + 1 * PER_WIN.Champ,
+      prob: "~0.3%"
+    }
+  ];
+
+  let html = `<div class="card"><h3>Break-Even Analysis: Need ${fmt(breakEvenTarget)} in Payouts</h3>
+    <div style="color:var(--muted);font-size:11px;margin-bottom:12px;">
+      Reference: R1 Win = ${fmt(PER_WIN.R1)} | R2 Win = ${fmt(PER_WIN.R2)} | S16 Win = ${fmt(PER_WIN.S16)} | E8 Win = ${fmt(PER_WIN.E8)} | F4 Win = ${fmt(PER_WIN.F4)} | Champ = ${fmt(PER_WIN.Champ)}
+    </div>`;
+
+  html += '<h4 style="color:var(--red);margin:12px 0 8px;">Downside Scenarios</h4>';
+  scenarios.filter(s=>s.type==='downside').forEach(s => {
+    const surplus = s.payout - breakEvenTarget;
+    const recoveryPct = (s.payout / breakEvenTarget * 100).toFixed(0);
+    html += `<div class="scenario" style="border-left:3px solid var(--red);">
+      <h4>${s.title}</h4>
+      <div class="prob">Estimated probability: ${s.prob}</div>
+      <div class="payout negative">${fmt(s.payout)} → Loss: ${fmt(Math.abs(surplus))} (${recoveryPct}% cost recovery)</div>
+      <div class="path">
+        ${Object.entries(s.wins).map(([round, count]) => `<span class="win">${count} ${round} wins (${fmt(count * PER_WIN[round])})</span>`).join(' + ')}
+      </div>
+    </div>`;
+  });
+
+  html += '<h4 style="color:var(--green);margin:16px 0 8px;">Upside Scenarios</h4>';
+  scenarios.filter(s=>s.type==='upside').forEach(s => {
+    const surplus = s.payout - breakEvenTarget;
+    const roiPct = (surplus / breakEvenTarget * 100).toFixed(0);
+    html += `<div class="scenario" style="border-left:3px solid var(--green);">
+      <h4>${s.title}</h4>
+      <div class="prob">Estimated probability: ${s.prob}</div>
+      <div class="payout positive">${fmt(s.payout)} → Profit: ${fmt(surplus)} (+${roiPct}% ROI)</div>
+      <div class="path">
+        ${Object.entries(s.wins).map(([round, count]) => `<span class="win">${count} ${round} wins (${fmt(count * PER_WIN[round])})</span>`).join(' + ')}
+      </div>
+    </div>`;
+  });
+
+  html += `<div style="margin-top:16px;padding:12px;background:var(--card2);border-radius:8px;">
+    <h4 style="font-size:13px;margin-bottom:8px;">Quick Math</h4>
+    <table>
+      <tr><td>R1 wins needed to break even (R1 only)</td><td style="font-weight:700;">${Math.ceil(breakEvenTarget / PER_WIN.R1)} wins (we have 13 teams)</td></tr>
+      <tr><td>If we win 10 R1 games</td><td>Need ${fmt(breakEvenTarget - 10*PER_WIN.R1)} more from later rounds</td></tr>
+      <tr><td>If we win 11 R1 games</td><td>Need ${fmt(breakEvenTarget - 11*PER_WIN.R1)} more from later rounds</td></tr>
+      <tr><td>If we win 12 R1 games</td><td>Need ${fmt(breakEvenTarget - 12*PER_WIN.R1)} more from later rounds</td></tr>
+      <tr><td>One Sweet 16 win equivalent</td><td>${(PER_WIN.S16/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
+      <tr><td>One Elite 8 win equivalent</td><td>${(PER_WIN.E8/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
+      <tr><td>One Final Four win equivalent</td><td>${(PER_WIN.F4/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
+      <tr><td>Championship win equivalent</td><td>${(PER_WIN.Champ/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
+    </table>
+  </div>`;
+
+  html += '</div>';
+  document.getElementById('tab-scenarios').innerHTML = html;
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll(){
+  renderPortfolio();
+  renderGuide();
+  renderBracket();
+  renderScenarios();
+}
+renderAll();
+</script></body>
+</html>
