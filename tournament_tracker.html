@@ -143,7 +143,7 @@ tr.eliminated-row .team-cell{text-decoration:line-through;}
 <div class="app">
 <header>
   <h1>Team Worrell — 2026 March Madness</h1>
-  <div class="subtitle">Pot: $468,987 | Invested: $92,950 | 13 Teams | Updated: Day 1 (Thu 3/19 results)</div>
+  <div class="subtitle">Pot: $468,987 | Invested: $92,950 | 13 Teams | Updated: R1 Complete (Thu 3/19 + Fri 3/20 results)</div>
 </header>
 
 <div class="teams-remaining" id="teamsRemaining"></div>
@@ -217,33 +217,54 @@ const BRACKET = {
 };
 
 // ============================================================
-// CONFIRMED RESULTS — Day 1 (Thursday March 19)
+// CONFIRMED RESULTS — R1 Complete (Thu 3/19 + Fri 3/20)
 // ============================================================
 const CONFIRMED = {
-  // SOUTH
+  // SOUTH — Thursday
   "SOUTH-r1-2": {winner:"Vanderbilt",loser:"McNeese",wScore:78,lScore:68},
   "SOUTH-r1-3": {winner:"Nebraska",loser:"Troy",wScore:76,lScore:47},
   "SOUTH-r1-4": {winner:"VCU",loser:"North Carolina",wScore:82,lScore:78,ot:true},
   "SOUTH-r1-5": {winner:"Illinois",loser:"Penn",wScore:105,lScore:70},
   "SOUTH-r1-6": {winner:"Texas A&M",loser:"Saint Mary's",wScore:63,lScore:50},
   "SOUTH-r1-7": {winner:"Houston",loser:"Idaho",wScore:78,lScore:47},
-  // WEST
+  // SOUTH — Friday
+  "SOUTH-r1-0": {winner:"Florida",loser:"Prairie View",wScore:114,lScore:55},
+  "SOUTH-r1-1": {winner:"Iowa",loser:"Clemson",wScore:67,lScore:61},
+  // WEST — Thursday
   "WEST-r1-2": {winner:"High Point",loser:"Wisconsin",wScore:83,lScore:82},
   "WEST-r1-3": {winner:"Arkansas",loser:"Hawai'i",wScore:97,lScore:78},
   "WEST-r1-4": {winner:"Texas",loser:"BYU",wScore:79,lScore:71},
   "WEST-r1-5": {winner:"Gonzaga",loser:"Kennesaw St",wScore:73,lScore:64},
-  // EAST
+  // WEST — Friday
+  "WEST-r1-0": {winner:"Arizona",loser:"Long Island",wScore:92,lScore:58},
+  "WEST-r1-1": {winner:"Utah State",loser:"Villanova",wScore:86,lScore:76},
+  "WEST-r1-6": {winner:"Miami",loser:"Missouri",wScore:80,lScore:66},
+  "WEST-r1-7": {winner:"Purdue",loser:"Queens",wScore:104,lScore:71},
+  // EAST — Thursday
   "EAST-r1-0": {winner:"Duke",loser:"Siena",wScore:71,lScore:65},
   "EAST-r1-1": {winner:"TCU",loser:"Ohio St.",wScore:66,lScore:64},
   "EAST-r1-4": {winner:"Louisville",loser:"South Florida",wScore:83,lScore:79},
   "EAST-r1-5": {winner:"Michigan St",loser:"N Dakota St",wScore:92,lScore:67},
-  // MIDWEST
+  // EAST — Friday
+  "EAST-r1-2": {winner:"St. John's",loser:"Northern Iowa",wScore:79,lScore:53},
+  "EAST-r1-3": {winner:"Kansas",loser:"CA Baptist",wScore:68,lScore:60},
+  "EAST-r1-6": {winner:"UCLA",loser:"UCF",wScore:75,lScore:71},
+  "EAST-r1-7": {winner:"UConn",loser:"Furman",wScore:82,lScore:71},
+  // MIDWEST — Thursday
   "MIDWEST-r1-0": {winner:"Michigan",loser:"Howard",wScore:101,lScore:80},
-  "MIDWEST-r1-1": {winner:"Saint Louis",loser:"Georgia",wScore:102,lScore:77}
+  "MIDWEST-r1-1": {winner:"Saint Louis",loser:"Georgia",wScore:102,lScore:77},
+  // MIDWEST — Friday
+  "MIDWEST-r1-2": {winner:"Texas Tech",loser:"Akron",wScore:91,lScore:71},
+  "MIDWEST-r1-3": {winner:"Alabama",loser:"Hofstra",wScore:90,lScore:70},
+  "MIDWEST-r1-4": {winner:"Tennessee",loser:"Miami OH",wScore:78,lScore:56},
+  "MIDWEST-r1-5": {winner:"Virginia",loser:"Wright St",wScore:82,lScore:73},
+  "MIDWEST-r1-6": {winner:"Kentucky",loser:"Santa Clara",wScore:89,lScore:84},
+  "MIDWEST-r1-7": {winner:"Iowa St.",loser:"Tennessee St",wScore:108,lScore:74}
 };
 
-// R2 Schedule — Saturday March 21 (confirmed matchups from Thursday results)
+// R2 Schedule — Saturday March 21 + Sunday March 22
 const R2_SCHEDULE = {
+  // Saturday 3/21 (from Thursday R1 results)
   "SOUTH-r2-1": {t1:"Vanderbilt",t2:"Nebraska",date:"Sat 3/21",time:"7:45 PM",ch:"TNT",spread:"VAN -2.5"},
   "SOUTH-r2-2": {t1:"VCU",t2:"Illinois",date:"Sat 3/21",time:"6:50 PM",ch:"CBS",spread:"ILL -10.5"},
   "SOUTH-r2-3": {t1:"Texas A&M",t2:"Houston",date:"Sat 3/21",time:"5:10 PM",ch:"TNT",spread:"HOU -9.5"},
@@ -251,7 +272,16 @@ const R2_SCHEDULE = {
   "WEST-r2-2": {t1:"Texas",t2:"Gonzaga",date:"Sat 3/21",time:"6:10 PM",ch:"TBS",spread:"GONZ -5.5"},
   "EAST-r2-0": {t1:"TCU",t2:"Duke",date:"Sat 3/21",time:"4:15 PM",ch:"CBS",spread:"DUKE -11.5"},
   "EAST-r2-2": {t1:"Louisville",t2:"Michigan St",date:"Sat 3/21",time:"1:45 PM",ch:"CBS",spread:"MSU -4.5"},
-  "MIDWEST-r2-0": {t1:"Saint Louis",t2:"Michigan",date:"Sat 3/21",time:"11:10 AM",ch:"CBS",spread:"MICH -12.5"}
+  "MIDWEST-r2-0": {t1:"Saint Louis",t2:"Michigan",date:"Sat 3/21",time:"11:10 AM",ch:"CBS",spread:"MICH -12.5"},
+  // Sunday 3/22 (from Friday R1 results)
+  "SOUTH-r2-0": {t1:"Iowa",t2:"Florida",date:"Sun 3/22",time:"6:10 PM",ch:"TBS",spread:"FLA -10.5"},
+  "WEST-r2-0": {t1:"Utah State",t2:"Arizona",date:"Sun 3/22",time:"6:50 PM",ch:"TNT",spread:"ARIZ -11.5"},
+  "WEST-r2-3": {t1:"Miami",t2:"Purdue",date:"Sun 3/22",time:"11:10 AM",ch:"CBS",spread:"PUR -7.5"},
+  "EAST-r2-1": {t1:"St. John's",t2:"Kansas",date:"Sun 3/22",time:"4:15 PM",ch:"CBS",spread:"SJU -3.5"},
+  "EAST-r2-3": {t1:"UCLA",t2:"UConn",date:"Sun 3/22",time:"7:45 PM",ch:"TBS",spread:"CONN -4.5"},
+  "MIDWEST-r2-1": {t1:"Texas Tech",t2:"Alabama",date:"Sun 3/22",time:"8:45 PM",ch:"TNT",spread:"ALA -1.5"},
+  "MIDWEST-r2-2": {t1:"Tennessee",t2:"Virginia",date:"Sun 3/22",time:"5:10 PM",ch:"TNT",spread:"TENN -1.5"},
+  "MIDWEST-r2-3": {t1:"Kentucky",t2:"Iowa St.",date:"Sun 3/22",time:"1:45 PM",ch:"CBS",spread:"ISU -4.5"}
 };
 
 // Team probabilities (pre-tournament)
@@ -299,16 +329,19 @@ Object.values(CONFIRMED).forEach(r => {
   if (isMine(r.winner)) R1_WINNERS.add(r.winner);
 });
 
-// Which of our teams play today (Friday)?
+// Which of our teams play today (Sat 3/21) vs tomorrow (Sun 3/22)?
 const PLAYS_TODAY = new Set();
-Object.entries(BRACKET).forEach(([region, games]) => {
-  games.forEach((g, i) => {
-    const key = `${region}-r1-${i}`;
-    if (!CONFIRMED[key]) {
-      if (isMine(g.t1)) PLAYS_TODAY.add(g.t1);
-      if (isMine(g.t2)) PLAYS_TODAY.add(g.t2);
-    }
-  });
+const PLAYS_TOMORROW = new Set();
+Object.entries(R2_SCHEDULE).forEach(([key, sched]) => {
+  const confKey = key; // R2 confirmed results use same keys
+  if (CONFIRMED[confKey]) return; // Skip if R2 game already confirmed
+  if (sched.date.includes('3/21')) {
+    if (isMine(sched.t1)) PLAYS_TODAY.add(sched.t1);
+    if (isMine(sched.t2)) PLAYS_TODAY.add(sched.t2);
+  } else if (sched.date.includes('3/22')) {
+    if (isMine(sched.t1)) PLAYS_TOMORROW.add(sched.t1);
+    if (isMine(sched.t2)) PLAYS_TOMORROW.add(sched.t2);
+  }
 });
 
 // Picks model (for interactive bracket predictions)
@@ -413,20 +446,20 @@ function renderPortfolio(){
     const potential = Math.max(0, totalFromPicks - actualWon);
     const netBalance = actualWon + potential - price;
     const isElim = ELIMINATED.has(teamName);
-    const wonR1 = R1_WINNERS.has(teamName);
     const playsToday = PLAYS_TODAY.has(teamName);
+    const playsTomorrow = PLAYS_TOMORROW.has(teamName);
 
     let status, statusClass;
     if (isElim) { status = 'Eliminated'; statusClass = 'eliminated'; }
-    else if (wonR1) { status = 'Won R1'; statusClass = 'won-r1'; }
-    else if (playsToday) { status = 'Plays Today'; statusClass = 'today'; }
-    else { status = 'Alive'; statusClass = 'alive'; }
+    else if (playsToday) { status = 'R2 Today'; statusClass = 'today'; }
+    else if (playsTomorrow) { status = 'R2 Sunday'; statusClass = 'alive'; }
+    else { status = 'Won R1'; statusClass = 'won-r1'; }
 
     rows.push({ teamName, region: info ? info.region : '?', seed: info ? info.seed : 0, price, actualWon, potential, netBalance, isElim, status, statusClass });
   });
 
-  // Sort: active teams first (won R1 first, then plays today), eliminated at bottom
-  const statusOrder = {'Won R1': 0, 'Plays Today': 1, 'Alive': 1, 'Eliminated': 2};
+  // Sort: plays today first, then plays tomorrow, then alive, eliminated at bottom
+  const statusOrder = {'R2 Today': 0, 'R2 Sunday': 1, 'Won R1': 2, 'Alive': 2, 'Eliminated': 3};
   rows.sort((a,b) => (statusOrder[a.status] || 1) - (statusOrder[b.status] || 1) || b.price - a.price);
 
   let html = '<table><thead><tr><th>Team</th><th>Region</th><th>Seed</th><th>Price Paid</th><th>Won to Date</th><th>Potential Winnings</th><th>Net Balance</th><th>Status</th></tr></thead><tbody>';
@@ -475,54 +508,6 @@ function renderPortfolio(){
 // VIEWING GUIDE
 // ============================================================
 function renderGuide(){
-  // --- SECTION 1: Remaining R1 Games (Friday) ---
-  let r1Games = [];
-  Object.entries(BRACKET).forEach(([region, games])=>{
-    games.forEach((g,i)=>{
-      const key = `${region}-r1-${i}`;
-      if (CONFIRMED[key]) return; // Skip completed games
-
-      const t1Mine = isMine(g.t1), t2Mine = isMine(g.t2);
-      const bothMine = t1Mine && t2Mine;
-
-      let notes = [];
-      const partnerIdx = i % 2 === 0 ? i + 1 : i - 1;
-      const partner = games[partnerIdx];
-      const partnerKey = `${region}-r1-${partnerIdx}`;
-      const partnerConfirmed = CONFIRMED[partnerKey];
-
-      if (t1Mine || t2Mine) {
-        const myTeam = t1Mine ? g.t1 : g.t2;
-        if (partnerConfirmed) {
-          // Partner game is done - we know the R2 opponent
-          const r2Opponent = partnerConfirmed.winner;
-          const r2OpponentMine = isMine(r2Opponent);
-          if (r2OpponentMine) {
-            notes.push({type:'watch', text:`R2 matchup: ${myTeam} vs ${tl(r2Opponent)} (both ours!)`, imp:'med'});
-          } else {
-            notes.push({type:'root-for', text:`R2 matchup would be vs ${r2Opponent}`, imp:'low'});
-          }
-        } else {
-          const partnerT1Mine = isMine(partner.t1);
-          const partnerT2Mine = isMine(partner.t2);
-          if (!partnerT1Mine && !partnerT2Mine) {
-            const easier = partner.s1 > partner.s2 ? partner.t1 : partner.t2;
-            const easierSeed = Math.max(partner.s1, partner.s2);
-            notes.push({type:'root-for', text:`Root for ${easierSeed}-seed ${easier} (easier R2 matchup)`, imp:'low'});
-          } else if (partnerT1Mine || partnerT2Mine) {
-            const otherMyTeam = partnerT1Mine ? partner.t1 : partner.t2;
-            notes.push({type:'watch', text:`R2 could match ${myTeam} vs ${tl(otherMyTeam)} (both ours!)`, imp:'med'});
-          }
-        }
-      }
-      if (bothMine) {
-        notes.unshift({type:'conflict', text:`Both teams are ours! Guaranteed R1 win + loss.`, imp:'high'});
-      }
-
-      r1Games.push({...g, region, gameIdx:i, t1Mine, t2Mine, bothMine, notes});
-    });
-  });
-
   const timeToMin = t => {
     const [time, ampm] = t.split(' ');
     let [h, m] = time.split(':').map(Number);
@@ -531,13 +516,79 @@ function renderGuide(){
     return h * 60 + m;
   };
 
-  r1Games.sort((a,b) => timeToMin(a.time) - timeToMin(b.time));
+  // S16 pairing: R2-0 vs R2-1 → S16-0, R2-2 vs R2-3 → S16-1
+  const s16Pairs = {0:1, 1:0, 2:3, 3:2};
 
-  let html = '<div class="card"><h3>Round 1 — Remaining Games (Friday, March 20)</h3>';
+  // Build all R2 games from schedule
+  let r2Games = [];
+  Object.entries(R2_SCHEDULE).forEach(([key, sched]) => {
+    if (CONFIRMED[key]) return; // Skip confirmed R2 games
+    const t1Mine = isMine(sched.t1), t2Mine = isMine(sched.t2);
+    const bothMine = t1Mine && t2Mine;
+    const region = key.split('-')[0];
+    const r2Idx = parseInt(key.split('-')[2]);
+
+    let notes = [];
+    if (bothMine) {
+      notes.push({type:'conflict', text:`Both teams are ours! Guaranteed R2 win + loss ($${Math.round(PER_WIN.R2).toLocaleString()} earned).`, imp:'high'});
+    } else if (t1Mine || t2Mine) {
+      const myTeam = t1Mine ? sched.t1 : sched.t2;
+      notes.push({type:'root-for', text:`Root for ${tl(myTeam)}!`, imp:'high'});
+    }
+
+    // S16 lookahead: who would our team play next?
+    const partnerR2Idx = s16Pairs[r2Idx];
+    const partnerR2Key = `${region}-r2-${partnerR2Idx}`;
+    const partnerSched = R2_SCHEDULE[partnerR2Key];
+    if ((t1Mine || t2Mine) && partnerSched) {
+      const partnerT1Mine = isMine(partnerSched.t1);
+      const partnerT2Mine = isMine(partnerSched.t2);
+      const partnerT1Seed = findTeamInfo(partnerSched.t1)?.seed || 0;
+      const partnerT2Seed = findTeamInfo(partnerSched.t2)?.seed || 0;
+
+      if (partnerT1Mine || partnerT2Mine) {
+        const otherTeam = partnerT1Mine ? partnerSched.t1 : partnerSched.t2;
+        notes.push({type:'watch', text:`S16 could match vs ${tl(otherTeam)} (ours!) from ${partnerSched.t1} vs ${partnerSched.t2}`, imp:'med'});
+      } else {
+        // Root for the lower seed (easier S16 opponent)
+        const easier = partnerT1Seed > partnerT2Seed ? partnerSched.t1 : partnerSched.t2;
+        const easierSeed = Math.max(partnerT1Seed, partnerT2Seed);
+        notes.push({type:'root-for', text:`S16 opponent: root for ${easierSeed}-seed ${easier} over ${Math.min(partnerT1Seed, partnerT2Seed)}-seed ${partnerT1Seed > partnerT2Seed ? partnerSched.t2 : partnerSched.t1} (easier path)`, imp:'low'});
+      }
+    }
+
+    r2Games.push({...sched, key, region, r2Idx, t1Mine, t2Mine, bothMine, notes,
+      s1: findTeamInfo(sched.t1)?.seed || '?',
+      s2: findTeamInfo(sched.t2)?.seed || '?'
+    });
+  });
+
+  r2Games.sort((a,b) => timeToMin(a.time) - timeToMin(b.time));
+
+  const satGames = r2Games.filter(g => g.date.includes('3/21'));
+  const sunGames = r2Games.filter(g => g.date.includes('3/22'));
+  const ourSat = satGames.filter(g => g.t1Mine || g.t2Mine).length;
+  const ourSun = sunGames.filter(g => g.t1Mine || g.t2Mine).length;
+
+  let html = '';
+
+  // R1 Recap card
+  html += `<div class="card" style="border-left:3px solid var(--green);">
+    <h3>R1 Complete — 7 of 13 Teams Advance</h3>
+    <div style="font-size:12px;line-height:1.8;">
+      <strong style="color:var(--green);">Won R1 (7):</strong> Vanderbilt \u{1F525}, Illinois \u{1F525}, Texas \u{1F525} (Thu) · Iowa St. \u{1F525}, Alabama, UCLA \u{1F525}, Kentucky (Fri)<br>
+      <strong style="color:var(--red);">Eliminated (6):</strong> <span style="text-decoration:line-through;opacity:0.6;">Wisconsin</span> (vs High Point, 82-83), <span style="text-decoration:line-through;opacity:0.6;">Ohio St.</span> (vs TCU, 64-66), <span style="text-decoration:line-through;opacity:0.6;">Georgia</span> (vs Saint Louis, 77-102), <span style="text-decoration:line-through;opacity:0.6;">Clemson</span> (vs Iowa, 61-67), <span style="text-decoration:line-through;opacity:0.6;">UCF</span> (vs UCLA, 71-75), <span style="text-decoration:line-through;opacity:0.6;">Villanova</span> (vs Utah State, 76-86)<br>
+      <strong>R1 Earnings:</strong> 7 wins × ${fmt(PER_WIN.R1)} = <span style="color:var(--green);font-weight:700;">${fmt(7 * PER_WIN.R1)}</span> · Haut List: <span style="color:var(--orange);">\u{1F525} 5/5 alive</span>
+    </div>
+  </div>`;
+
+  // --- SECTION: Saturday 3/21 R2 Games ---
+  html += '<div class="section-divider">Round 2 — Saturday, March 21 (8 games)</div>';
+  html += `<div class="card"><h3>R2 Day 1 — ${ourSat} of ${satGames.length} games involve our teams</h3>`;
 
   html += `<div class="filter-toggle">
-    <button class="toggle-btn" id="filterAllR1" onclick="toggleFilterR1('all')">All Games (${r1Games.length})</button>
-    <button class="toggle-btn active" id="filterOursR1" onclick="toggleFilterR1('ours')">Our Games Only</button>
+    <button class="toggle-btn" id="filterAllSat" onclick="toggleFilter('sat','all')">All Games (${satGames.length})</button>
+    <button class="toggle-btn active" id="filterOursSat" onclick="toggleFilter('sat','ours')">Our Games Only</button>
   </div>`;
 
   html += `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
@@ -549,100 +600,32 @@ function renderGuide(){
   html += `<div style="display:grid;grid-template-columns:60px 50px 1fr 80px;padding:4px 10px;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">
     <div>Time</div><div>TV</div><div>Matchup</div><div>Spread</div>
   </div>`;
-  html += '<div id="r1GamesList">';
+  html += '<div id="satGamesList">';
+  html += '<div class="day-header">SATURDAY, MARCH 21</div>';
 
-  r1Games.forEach(g => {
-    const cls = g.bothMine ? 'game-slot oursVsOurs' : (g.t1Mine || g.t2Mine) ? 'game-slot ours' : 'game-slot';
-    const regionColor = {'SOUTH':'var(--south)','WEST':'var(--west)','EAST':'var(--east)','MIDWEST':'var(--midwest)'}[g.region];
-
-    let notesHtml = '';
-    g.notes.forEach(n => {
-      const impCls = n.imp === 'high' ? 'imp-high' : n.imp === 'med' ? 'imp-med' : 'imp-low';
-      notesHtml += `<span class="note ${n.type}"><span class="importance ${impCls}"></span>${n.text}</span>`;
-    });
-
-    const filterClass = (g.t1Mine || g.t2Mine) ? 'our-game' : '';
-    html += `<div class="${cls}" data-filter="all ${filterClass}">
-      <span style="font-weight:600;font-size:11px;">${g.time}</span>
-      <span class="channel ${g.ch}">${g.ch}</span>
-      <div>
-        <span class="seed-badge">${g.s1}</span><span class="team-name ${g.t1Mine?'mine':''}">${tl(g.t1)}</span>
-        ${g.t1Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t1])})</span>`:''}
-        <span style="color:var(--muted);margin:0 4px;">vs</span>
-        <span class="seed-badge">${g.s2}</span><span class="team-name ${g.t2Mine?'mine':''}">${tl(g.t2)}</span>
-        ${g.t2Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t2])})</span>`:''}
-        <span style="color:var(--muted);font-size:10px;margin-left:8px;border-left:2px solid ${regionColor};padding-left:6px;">${g.region}</span>
-        ${notesHtml}
-      </div>
-      <span class="spread">${g.spread}</span>
-    </div>`;
+  satGames.forEach(g => {
+    html += renderGuideGameSlot(g);
   });
 
   html += '</div></div>';
 
-  // --- SECTION 2: Round 2 Games (Saturday) ---
-  let r2Games = [];
-  Object.entries(R2_SCHEDULE).forEach(([key, sched]) => {
-    const t1Mine = isMine(sched.t1), t2Mine = isMine(sched.t2);
-    const bothMine = t1Mine && t2Mine;
-    const region = key.split('-')[0];
-
-    let notes = [];
-    if (t1Mine && !t2Mine) {
-      notes.push({type:'root-for', text:`Root for ${tl(sched.t1)}!`, imp:'high'});
-    } else if (t2Mine && !t1Mine) {
-      notes.push({type:'root-for', text:`Root for ${tl(sched.t2)}!`, imp:'high'});
-    }
-    if (bothMine) {
-      notes.unshift({type:'conflict', text:`Both teams are ours! Guaranteed R2 win + loss.`, imp:'high'});
-    }
-
-    r2Games.push({...sched, key, region, t1Mine, t2Mine, bothMine, notes,
-      s1: findTeamInfo(sched.t1)?.seed || '?',
-      s2: findTeamInfo(sched.t2)?.seed || '?'
-    });
-  });
-
-  r2Games.sort((a,b) => timeToMin(a.time) - timeToMin(b.time));
-
-  html += '<div class="section-divider">Round 2 — Saturday, March 21</div>';
-  html += '<div class="card"><h3>Round 2 Schedule (8 games confirmed from Thursday results)</h3>';
+  // --- SECTION: Sunday 3/22 R2 Games ---
+  html += '<div class="section-divider">Round 2 — Sunday, March 22 (8 games)</div>';
+  html += `<div class="card"><h3>R2 Day 2 — ${ourSun} of ${sunGames.length} games involve our teams</h3>`;
 
   html += `<div class="filter-toggle">
-    <button class="toggle-btn" id="filterAllR2" onclick="toggleFilterR2('all')">All Games (${r2Games.length})</button>
-    <button class="toggle-btn active" id="filterOursR2" onclick="toggleFilterR2('ours')">Our Games Only</button>
+    <button class="toggle-btn" id="filterAllSun" onclick="toggleFilter('sun','all')">All Games (${sunGames.length})</button>
+    <button class="toggle-btn active" id="filterOursSun" onclick="toggleFilter('sun','ours')">Our Games Only</button>
   </div>`;
 
   html += `<div style="display:grid;grid-template-columns:60px 50px 1fr 80px;padding:4px 10px;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">
     <div>Time</div><div>TV</div><div>Matchup</div><div>Spread</div>
   </div>`;
-  html += '<div id="r2GamesList">';
+  html += '<div id="sunGamesList">';
+  html += '<div class="day-header">SUNDAY, MARCH 22</div>';
 
-  r2Games.forEach(g => {
-    const cls = g.bothMine ? 'game-slot oursVsOurs' : (g.t1Mine || g.t2Mine) ? 'game-slot ours' : 'game-slot';
-    const regionColor = {'SOUTH':'var(--south)','WEST':'var(--west)','EAST':'var(--east)','MIDWEST':'var(--midwest)'}[g.region];
-
-    let notesHtml = '';
-    g.notes.forEach(n => {
-      const impCls = n.imp === 'high' ? 'imp-high' : n.imp === 'med' ? 'imp-med' : 'imp-low';
-      notesHtml += `<span class="note ${n.type}"><span class="importance ${impCls}"></span>${n.text}</span>`;
-    });
-
-    const filterClass = (g.t1Mine || g.t2Mine) ? 'our-game' : '';
-    html += `<div class="${cls}" data-filter="all ${filterClass}">
-      <span style="font-weight:600;font-size:11px;">${g.time}</span>
-      <span class="channel ${g.ch}">${g.ch}</span>
-      <div>
-        <span class="seed-badge">${g.s1}</span><span class="team-name ${g.t1Mine?'mine':''}">${tl(g.t1)}</span>
-        ${g.t1Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t1])})</span>`:''}
-        <span style="color:var(--muted);margin:0 4px;">vs</span>
-        <span class="seed-badge">${g.s2}</span><span class="team-name ${g.t2Mine?'mine':''}">${tl(g.t2)}</span>
-        ${g.t2Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t2])})</span>`:''}
-        <span style="color:var(--muted);font-size:10px;margin-left:8px;border-left:2px solid ${regionColor};padding-left:6px;">${g.region}</span>
-        ${notesHtml}
-      </div>
-      <span class="spread">${g.spread}</span>
-    </div>`;
+  sunGames.forEach(g => {
+    html += renderGuideGameSlot(g);
   });
 
   html += '</div></div>';
@@ -650,24 +633,46 @@ function renderGuide(){
   document.getElementById('tab-guide').innerHTML = html;
 
   // Filter functions
-  window.toggleFilterR1 = function(mode) {
-    document.getElementById('filterAllR1').classList.toggle('active', mode === 'all');
-    document.getElementById('filterOursR1').classList.toggle('active', mode === 'ours');
-    document.querySelectorAll('#r1GamesList > *').forEach(el => {
-      if (mode === 'all') { el.style.display = ''; }
-      else { el.style.display = el.dataset.filter && el.dataset.filter.includes('our-game') ? 'grid' : 'none'; }
-    });
-  };
-  window.toggleFilterR2 = function(mode) {
-    document.getElementById('filterAllR2').classList.toggle('active', mode === 'all');
-    document.getElementById('filterOursR2').classList.toggle('active', mode === 'ours');
-    document.querySelectorAll('#r2GamesList > *').forEach(el => {
+  window.toggleFilter = function(day, mode) {
+    const listId = day === 'sat' ? 'satGamesList' : 'sunGamesList';
+    const allId = day === 'sat' ? 'filterAllSat' : 'filterAllSun';
+    const oursId = day === 'sat' ? 'filterOursSat' : 'filterOursSun';
+    document.getElementById(allId).classList.toggle('active', mode === 'all');
+    document.getElementById(oursId).classList.toggle('active', mode === 'ours');
+    document.querySelectorAll(`#${listId} > *`).forEach(el => {
       if (mode === 'all') { el.style.display = ''; }
       else { el.style.display = el.dataset.filter && el.dataset.filter.includes('our-game') ? 'grid' : 'none'; }
     });
   };
 
-  setTimeout(() => { toggleFilterR1('ours'); toggleFilterR2('ours'); }, 0);
+  setTimeout(() => { toggleFilter('sat','ours'); toggleFilter('sun','ours'); }, 0);
+}
+
+function renderGuideGameSlot(g) {
+  const cls = g.bothMine ? 'game-slot oursVsOurs' : (g.t1Mine || g.t2Mine) ? 'game-slot ours' : 'game-slot';
+  const regionColor = {'SOUTH':'var(--south)','WEST':'var(--west)','EAST':'var(--east)','MIDWEST':'var(--midwest)'}[g.region];
+
+  let notesHtml = '';
+  g.notes.forEach(n => {
+    const impCls = n.imp === 'high' ? 'imp-high' : n.imp === 'med' ? 'imp-med' : 'imp-low';
+    notesHtml += `<span class="note ${n.type}"><span class="importance ${impCls}"></span>${n.text}</span>`;
+  });
+
+  const filterClass = (g.t1Mine || g.t2Mine) ? 'our-game' : '';
+  return `<div class="${cls}" data-filter="all ${filterClass}">
+    <span style="font-weight:600;font-size:11px;">${g.time}</span>
+    <span class="channel ${g.ch}">${g.ch}</span>
+    <div>
+      <span class="seed-badge">${g.s1}</span><span class="team-name ${g.t1Mine?'mine':''}">${tl(g.t1)}</span>
+      ${g.t1Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t1])})</span>`:''}
+      <span style="color:var(--muted);margin:0 4px;">vs</span>
+      <span class="seed-badge">${g.s2}</span><span class="team-name ${g.t2Mine?'mine':''}">${tl(g.t2)}</span>
+      ${g.t2Mine?`<span style="font-size:10px;color:var(--accent);">(${fmt(MY[g.t2])})</span>`:''}
+      <span style="color:var(--muted);font-size:10px;margin-left:8px;border-left:2px solid ${regionColor};padding-left:6px;">${g.region}</span>
+      ${notesHtml}
+    </div>
+    <span class="spread">${g.spread}</span>
+  </div>`;
 }
 
 // ============================================================
@@ -763,49 +768,71 @@ function renderBracket(){
       const [g1Idx, g2Idx] = r2Pairs[pIdx];
       const r2Key = `${region}-r2-${pIdx}`;
       const r2Sched = R2_SCHEDULE[r2Key];
+      const r2Conf = CONFIRMED[r2Key];
 
       const r2t1 = picks[`${region}-r1-${g1Idx}`];
       const r2t2 = picks[`${region}-r1-${g2Idx}`];
 
-      const r2Picked = picks[r2Key];
-      const r2t1Picked = r2Picked === r2t1;
-      const r2t2Picked = r2Picked === r2t2;
-
       let r2t1Mine = r2t1 ? isMine(r2t1) : false;
       let r2t2Mine = r2t2 ? isMine(r2t2) : false;
-
       let r2t1Seed = r2t1 ? (findTeamInfo(r2t1)?.seed || 0) : null;
       let r2t2Seed = r2t2 ? (findTeamInfo(r2t2)?.seed || 0) : null;
 
       html += '<div style="display:flex;gap:2px;flex-direction:column;">';
 
-      if (r2t1) {
-        html += `<div class="team-slot ${r2t2Picked ? 'eliminated' : ''} ${r2t1Mine ? 'our-team' : ''}" onclick="pickTeam('${r2Key}','${esc(r2t1)}')">
+      if (r2Conf && r2t1 && r2t2) {
+        // Confirmed R2 result — locked
+        const t1Won = r2Conf.winner === r2t1;
+        html += `<div class="team-slot ${t1Won ? 'confirmed-winner' : 'confirmed-loser'} ${r2t1Mine && t1Won ? 'our-team' : r2t1Mine ? '' : ''}" style="cursor:default;">
           <div class="team-slot-content">
-            <div class="team-slot-name">${r2t1Picked ? '✓ ' : ''}${tl(r2t1)}</div>
+            <div class="team-slot-name">${t1Won ? '✓ ' : '✗ '}${tl(r2t1)}</div>
             <div class="team-slot-seed">#${r2t1Seed}</div>
+            <div class="team-slot-score">${t1Won ? r2Conf.wScore : r2Conf.lScore} pts</div>
             ${r2t1Mine ? `<div class="team-slot-price">${fmt(MY[r2t1])}</div>` : ''}
           </div>
         </div>`;
-      } else {
-        html += `<div class="team-slot empty">TBD</div>`;
-      }
-
-      if (r2t2) {
-        html += `<div class="team-slot ${r2t1Picked ? 'eliminated' : ''} ${r2t2Mine ? 'our-team' : ''}" onclick="pickTeam('${r2Key}','${esc(r2t2)}')">
+        html += `<div class="team-slot ${!t1Won ? 'confirmed-winner' : 'confirmed-loser'} ${r2t2Mine && !t1Won ? 'our-team' : r2t2Mine ? '' : ''}" style="cursor:default;">
           <div class="team-slot-content">
-            <div class="team-slot-name">${r2t2Picked ? '✓ ' : ''}${tl(r2t2)}</div>
+            <div class="team-slot-name">${!t1Won ? '✓ ' : '✗ '}${tl(r2t2)}</div>
             <div class="team-slot-seed">#${r2t2Seed}</div>
+            <div class="team-slot-score">${!t1Won ? r2Conf.wScore : r2Conf.lScore} pts</div>
             ${r2t2Mine ? `<div class="team-slot-price">${fmt(MY[r2t2])}</div>` : ''}
           </div>
         </div>`;
       } else {
-        html += `<div class="team-slot empty">TBD</div>`;
+        // Unplayed R2 — interactive picks
+        const r2Picked = picks[r2Key];
+        const r2t1Picked = r2Picked === r2t1;
+        const r2t2Picked = r2Picked === r2t2;
+
+        if (r2t1) {
+          html += `<div class="team-slot ${r2t2Picked ? 'eliminated' : ''} ${r2t1Mine ? 'our-team' : ''}" onclick="pickTeam('${r2Key}','${esc(r2t1)}')">
+            <div class="team-slot-content">
+              <div class="team-slot-name">${r2t1Picked ? '✓ ' : ''}${tl(r2t1)}</div>
+              <div class="team-slot-seed">#${r2t1Seed}</div>
+              ${r2t1Mine ? `<div class="team-slot-price">${fmt(MY[r2t1])}</div>` : ''}
+            </div>
+          </div>`;
+        } else {
+          html += `<div class="team-slot empty">TBD</div>`;
+        }
+
+        if (r2t2) {
+          html += `<div class="team-slot ${r2t1Picked ? 'eliminated' : ''} ${r2t2Mine ? 'our-team' : ''}" onclick="pickTeam('${r2Key}','${esc(r2t2)}')">
+            <div class="team-slot-content">
+              <div class="team-slot-name">${r2t2Picked ? '✓ ' : ''}${tl(r2t2)}</div>
+              <div class="team-slot-seed">#${r2t2Seed}</div>
+              ${r2t2Mine ? `<div class="team-slot-price">${fmt(MY[r2t2])}</div>` : ''}
+            </div>
+          </div>`;
+        } else {
+          html += `<div class="team-slot empty">TBD</div>`;
+        }
       }
 
-      // Show R2 schedule info if available
-      if (r2Sched) {
-        html += `<div class="r2-schedule-info">${r2Sched.time} · ${r2Sched.ch} · ${r2Sched.spread}</div>`;
+      // Show R2 schedule info if available and not yet confirmed
+      if (r2Sched && !r2Conf) {
+        html += `<div class="r2-schedule-info">${r2Sched.date} · ${r2Sched.time} · ${r2Sched.ch} · ${r2Sched.spread}</div>`;
       }
 
       html += '</div>';
@@ -940,8 +967,7 @@ function cascadeRemove(teamName) {
     if (picks[pk] === teamName) {
       if (pk.includes('-r2-') || pk.includes('-s16-') || pk.includes('-e8-') || pk.startsWith('ff-') || pk.startsWith('champ-')) {
         // Don't remove confirmed results
-        const isConfR2 = false; // R2 not confirmed yet
-        if (!isConfR2) delete picks[pk];
+        if (!CONFIRMED[pk]) delete picks[pk];
       }
     }
   });
@@ -955,12 +981,13 @@ function clearAllPicks() {
 }
 
 // ============================================================
-// BREAK-EVEN SCENARIOS (Updated after Day 1 results)
+// BREAK-EVEN SCENARIOS (Updated after R1 — 7 teams remain)
 // ============================================================
 function renderScenarios(){
   const wonToDate = Object.keys(MY).reduce((sum, t) => sum + getActualWinnings(t), 0);
   const teamsAlive = Object.keys(MY).filter(t => !ELIMINATED.has(t)).length;
   const breakEvenTarget = TOTAL_SPENT;
+  const r1Earnings = 7 * PER_WIN.R1;
 
   let html = `<div class="card"><h3>Break-Even Analysis</h3>
     <div style="padding:12px;background:var(--card2);border-radius:8px;margin-bottom:14px;">
@@ -968,55 +995,67 @@ function renderScenarios(){
         <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Won to Date</div><div style="font-size:18px;font-weight:700;color:var(--green);">${fmt(wonToDate)}</div></div>
         <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Still Need</div><div style="font-size:18px;font-weight:700;color:var(--orange);">${fmt(breakEvenTarget - wonToDate)}</div></div>
         <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Teams Alive</div><div style="font-size:18px;font-weight:700;">${teamsAlive}/13</div></div>
-        <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Day 1 Results</div><div style="font-size:14px;font-weight:600;">3W / 3L (Thu)</div><div style="font-size:11px;color:var(--muted);">Lost: Wisconsin, Ohio St., Georgia</div></div>
+        <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">R1 Results</div><div style="font-size:14px;font-weight:600;">7W / 6L</div><div style="font-size:11px;color:var(--muted);">All Haut List \u{1F525} alive</div></div>
       </div>
     </div>
     <div style="color:var(--muted);font-size:11px;margin-bottom:12px;">
-      <strong>Day 1 recap:</strong> Vanderbilt \u{1F525}, Illinois \u{1F525}, and Texas \u{1F525} all won R1 ($10,552 earned). Wisconsin fell to 12-seed High Point by 1. Ohio St. lost to TCU by 2. Georgia blown out by Saint Louis. 7 teams play Friday.<br>
-      Reference: R1 Win = ${fmt(PER_WIN.R1)} | R2 Win = ${fmt(PER_WIN.R2)} | S16 Win = ${fmt(PER_WIN.S16)} | E8 Win = ${fmt(PER_WIN.E8)} | F4 Win = ${fmt(PER_WIN.F4)} | Champ = ${fmt(PER_WIN.Champ)}
+      <strong>R1 recap:</strong> 7 of 13 teams won R1 for ${fmt(r1Earnings)} earned. All 5 Haut List teams \u{1F525} survived. Lost Wisconsin (1-pt upset by High Point), Ohio St. (2-pt loss to TCU), Georgia (blown out by Saint Louis), Clemson (lost to Iowa), UCF (lost to our UCLA), Villanova (lost to Utah State). Now entering R2 needing ${fmt(breakEvenTarget - wonToDate)} more to break even.<br>
+      <strong>Key R2 note:</strong> Kentucky vs Iowa St. on Sunday — guaranteed win + loss ($${Math.round(PER_WIN.R2).toLocaleString()} earned, one team eliminated).<br>
+      Reference: R2 Win = ${fmt(PER_WIN.R2)} | S16 Win = ${fmt(PER_WIN.S16)} | E8 Win = ${fmt(PER_WIN.E8)} | F4 Win = ${fmt(PER_WIN.F4)} | Champ = ${fmt(PER_WIN.Champ)}
     </div>`;
+
+  // R2 matchups for our 7 teams:
+  // Sat: Vanderbilt vs Nebraska (VAN -2.5), Illinois vs VCU (ILL -10.5), Texas vs Gonzaga (GONZ -5.5)
+  // Sun: Kentucky vs Iowa St. (ISU -4.5, OURS vs OURS), Alabama vs Texas Tech (ALA -1.5), UCLA vs UConn (CONN -4.5)
 
   const scenarios = [
     {
-      title: "Friday Stumbles + Early R2 Exits (~35% Recovery)",
-      description: "5 of 7 Friday teams win (lose Clemson and UCF). 8 total R1 wins. Illinois wins R2 over VCU but loses in S16. No other deep runs.",
+      title: "R2 Wipeout — Only ISU Survives",
+      description: "Iowa St. beats Kentucky (guaranteed R2 win for one of them). All other teams lose R2: Vanderbilt falls to Nebraska, Illinois falls to VCU, Texas falls to Gonzaga, Alabama falls to Texas Tech, UCLA falls to UConn. Only 1 R2 win + $68K loss.",
       type: "downside",
-      payout: 8 * PER_WIN.R1 + 1 * PER_WIN.R2,
-      prob: "~10%"
+      payout: 7 * PER_WIN.R1 + 1 * PER_WIN.R2,
+      prob: "~5%"
     },
     {
-      title: "Solid R1, Shallow Runs (~55% Recovery)",
-      description: "6 of 7 Friday teams win (lose UCF vs UCLA). 9 total R1 wins. Illinois and Iowa St. both win R2, but both lose in S16. Vanderbilt loses R2 to Nebraska.",
+      title: "Rough R2 — 2 Wins, Shallow Runs",
+      description: "Iowa St. beats Kentucky and Illinois beats VCU (both favored). Everyone else loses R2. Iowa St. loses in S16. 2 R2 wins, no deep runs. Still down ~$57K.",
       type: "downside",
-      payout: 9 * PER_WIN.R1 + 2 * PER_WIN.R2,
+      payout: 7 * PER_WIN.R1 + 2 * PER_WIN.R2,
+      prob: "~12%"
+    },
+    {
+      title: "Average Case — 3 R2 Wins + 1 S16",
+      description: "Iowa St. beats Kentucky, Illinois beats VCU, Alabama beats Texas Tech. Illinois wins S16. Vanderbilt, Texas, UCLA all lose R2. Recovers about 65% of investment.",
+      type: "downside",
+      payout: 7 * PER_WIN.R1 + 3 * PER_WIN.R2 + 1 * PER_WIN.S16,
       prob: "~15%"
     },
     {
-      title: "Break-Even Territory (~95% Recovery)",
-      description: "9 R1 wins. Illinois wins R2 + S16. Iowa St. wins R2 + S16. Vanderbilt wins R2. Deep enough to nearly break even.",
+      title: "Near Break-Even — 4 R2 Wins + 2 S16",
+      description: "Iowa St. + Illinois + Alabama + Vanderbilt all win R2. Iowa St. and Illinois both win S16. Texas and UCLA fall. Gets within ~$10K of break-even.",
       type: "downside",
-      payout: 9 * PER_WIN.R1 + 3 * PER_WIN.R2 + 2 * PER_WIN.S16,
-      prob: "~8%"
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16,
+      prob: "~6%"
     },
     {
-      title: "Solid Return: Iowa St. E8 + Illinois S16 (+10% ROI)",
-      description: "9 R1 wins. Iowa St. powers through to E8 (wins R2 + S16 + E8). Illinois wins R2 + S16. Alabama + Vanderbilt both win R2.",
+      title: "Profitable: Iowa St. E8 + Illinois S16 (+5% ROI)",
+      description: "Iowa St. wins R2 (beats Kentucky) + S16 + E8. Illinois wins R2 + S16. Alabama and Vanderbilt win R2. 5 total R2 wins + 2 S16 + 1 E8.",
       type: "upside",
-      payout: 9 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 1 * PER_WIN.E8,
-      prob: "~4%"
+      payout: 7 * PER_WIN.R1 + 5 * PER_WIN.R2 + 2 * PER_WIN.S16 + 1 * PER_WIN.E8,
+      prob: "~3%"
     },
     {
-      title: "Iowa St. Final Four + Illinois E8 (+50% ROI)",
-      description: "Iowa St. reaches the Final Four. Illinois makes Elite 8. 9 R1 wins with Vanderbilt and Alabama also winning R2.",
+      title: "Strong Run: Iowa St. F4 + Illinois E8 (+40% ROI)",
+      description: "Iowa St. reaches Final Four (wins through E8). Illinois makes Elite 8. Alabama wins R2. Portfolio earns $130K+.",
       type: "upside",
-      payout: 9 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4,
-      prob: "~1.5%"
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4,
+      prob: "~1%"
     },
     {
       title: "Dream: Iowa St. Championship (+100% ROI)",
-      description: "Iowa State wins it all ($102K from ISU alone). Illinois makes E8. 9 R1 wins total. Portfolio payout ~$190K.",
+      description: "Iowa State wins it all. Each ISU win: R2 ($5.9K) + S16 ($11.7K) + E8 ($19.9K) + F4 ($25.8K) + Champ ($32.8K) = $96.3K from ISU alone. With other teams' R1 wins + some R2 wins, portfolio hits ~$180K+.",
       type: "upside",
-      payout: 9 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4 + 1 * PER_WIN.Champ,
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4 + 1 * PER_WIN.Champ,
       prob: "~0.3%"
     }
   ];
@@ -1046,15 +1085,16 @@ function renderScenarios(){
   });
 
   html += `<div style="margin-top:16px;padding:12px;background:var(--card2);border-radius:8px;">
-    <h4 style="font-size:13px;margin-bottom:8px;">Quick Math (Updated)</h4>
+    <h4 style="font-size:13px;margin-bottom:8px;">Quick Math (Post-R1)</h4>
     <table>
-      <tr><td>R1 wins so far</td><td style="font-weight:700;">3 wins = ${fmt(3 * PER_WIN.R1)}</td></tr>
-      <tr><td>Max remaining R1 wins (7 teams play Friday)</td><td style="font-weight:700;">7 more possible → max 10 total (${fmt(10 * PER_WIN.R1)})</td></tr>
-      <tr><td>Still need to break even</td><td style="font-weight:700;">${fmt(breakEvenTarget - wonToDate)} from remaining games + later rounds</td></tr>
-      <tr><td>If we win 9 R1 total + 2 R2 wins</td><td>= ${fmt(9 * PER_WIN.R1 + 2 * PER_WIN.R2)} (${((9 * PER_WIN.R1 + 2 * PER_WIN.R2) / breakEvenTarget * 100).toFixed(0)}% recovery)</td></tr>
-      <tr><td>One Sweet 16 win equivalent</td><td>${(PER_WIN.S16/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
-      <tr><td>One Elite 8 win equivalent</td><td>${(PER_WIN.E8/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
-      <tr><td>Championship win equivalent</td><td>${(PER_WIN.Champ/PER_WIN.R1).toFixed(1)} R1 wins</td></tr>
+      <tr><td>R1 earnings (locked)</td><td style="font-weight:700;">7 wins = ${fmt(7 * PER_WIN.R1)}</td></tr>
+      <tr><td>Still need to break even</td><td style="font-weight:700;">${fmt(breakEvenTarget - wonToDate)} from R2+ rounds</td></tr>
+      <tr><td>Kentucky vs Iowa St. (guaranteed)</td><td style="font-weight:700;">+${fmt(PER_WIN.R2)} R2 payout (one wins, one eliminated)</td></tr>
+      <tr><td>If 4 of 7 win R2</td><td>= ${fmt(7 * PER_WIN.R1 + 4 * PER_WIN.R2)} (${((7 * PER_WIN.R1 + 4 * PER_WIN.R2) / breakEvenTarget * 100).toFixed(0)}% recovery)</td></tr>
+      <tr><td>Need for break-even from R2+</td><td>${(((breakEvenTarget - wonToDate) / PER_WIN.R2)).toFixed(1)} R2 wins equivalent</td></tr>
+      <tr><td>One S16 win = </td><td>${(PER_WIN.S16/PER_WIN.R2).toFixed(1)} R2 wins worth</td></tr>
+      <tr><td>One E8 win = </td><td>${(PER_WIN.E8/PER_WIN.R2).toFixed(1)} R2 wins worth</td></tr>
+      <tr><td>Championship run (one team) = </td><td>${fmt(PER_WIN.R2 + PER_WIN.S16 + PER_WIN.E8 + PER_WIN.F4 + PER_WIN.Champ)} total from R2→Champ</td></tr>
     </table>
   </div>`;
 

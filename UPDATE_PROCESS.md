@@ -132,3 +132,51 @@ git push
 - **Eliminated:** Wisconsin (lost to High Point 82-83), Ohio St. (lost to TCU 64-66), Georgia (lost to Saint Louis 77-102)
 - **Play Friday:** Iowa St., Alabama, UCLA, Kentucky, Clemson, UCF, Villanova
 - **Teams remaining:** 10/13 | Haut List: 5/5
+
+## Status After R1 Complete (Thu 3/19 + Fri 3/20)
+
+- **Won R1 (7):** Vanderbilt 🔥, Illinois 🔥, Texas 🔥 (Thu) · Iowa St. 🔥, Alabama, UCLA 🔥, Kentucky (Fri)
+- **Eliminated (6):** Wisconsin (82-83 vs High Point), Ohio St. (64-66 vs TCU), Georgia (77-102 vs Saint Louis), Clemson (61-67 vs Iowa), UCF (71-75 vs UCLA), Villanova (76-86 vs Utah State)
+- **R1 Earnings:** 7 × $3,517 = $24,622 | Still need: $68,328 to break even
+- **R2 Saturday (3 of our teams):** Vanderbilt vs Nebraska, Illinois vs VCU, Texas vs Gonzaga
+- **R2 Sunday (4 of our teams, 6 games):** Kentucky vs Iowa St. (OURS vs OURS), Alabama vs Texas Tech, UCLA vs UConn
+- **Teams remaining:** 7/13 | Haut List: 5/5
+
+## Mid-Round Update Notes
+
+When updating during a round that spans two days (e.g., R2 played Sat+Sun), there are key differences from a new-round update:
+
+### What changes mid-round vs new round:
+1. **CONFIRMED**: Add results only for completed games (e.g., Saturday R2 results). Do NOT add Sunday games until they're played.
+2. **R2_SCHEDULE** (or equivalent round schedule): Already fully populated at round start. No new entries needed mid-round — just add CONFIRMED results as games finish.
+3. **Viewing Guide**: Games that are now CONFIRMED should either be removed from the guide or shown with results. Remaining games (e.g., Sunday) still show as upcoming. The guide dynamically skips `CONFIRMED` games via the `if (CONFIRMED[key]) return;` check.
+4. **PLAYS_TODAY / PLAYS_TOMORROW**: These auto-derive from R2_SCHEDULE + CONFIRMED. After Saturday games, Saturday teams move to ELIMINATED or R2_WINNERS. Sunday teams remain in PLAYS_TOMORROW (which becomes "today" on Sunday).
+5. **Bracket**: Confirmed R2 results should lock in the bracket using the same confirmed-winner/confirmed-loser pattern used for R1. The bracket code already checks `CONFIRMED[r2Key]` — currently all R2 games render as interactive picks, but as results are added they'll lock automatically.
+6. **Scenarios**: Update probabilities and descriptions after each day's results. Remove scenarios that are no longer possible.
+
+### Checklist for mid-round update:
+- [ ] Add completed games to `CONFIRMED` (same key format: `REGION-r2-INDEX`)
+- [ ] Verify viewing guide correctly hides completed games
+- [ ] Update subtitle timestamp
+- [ ] Update scenario analysis text + probabilities
+- [ ] Add change log entry
+- [ ] Push to GitHub
+
+### Checklist for new round update (e.g., transitioning from R2 → S16):
+- [ ] All games from current round added to `CONFIRMED`
+- [ ] Create new schedule object (e.g., `S16_SCHEDULE`)
+- [ ] Update viewing guide `renderGuide()` to remove old round, add new round sections
+- [ ] Update `PLAYS_TODAY` / `PLAYS_TOMORROW` logic to reference new schedule
+- [ ] Add S16 confirmed-result rendering to bracket (similar pattern to R1/R2)
+- [ ] Update portfolio status labels (e.g., "Won R2" → "R2 Today" → "S16 Saturday")
+- [ ] Rewrite scenarios for remaining teams
+- [ ] Update subtitle, change log, push to GitHub
+
+## Change Log
+
+| Date | Changes |
+|------|---------|
+| 3/19 (Day 1) | Initial results update: added `CONFIRMED` object with 16 R1 results, `R2_SCHEDULE` with 8 Saturday games + spreads, `HAUT_LIST` with fire emoji throughout, `ELIMINATED`/`R1_WINNERS`/`PLAYS_TODAY` derived sets, teams remaining counters, split viewing guide into R1 remaining + R2 sections, locked confirmed bracket games, updated scenario analysis, created UPDATE_PROCESS.md |
+| 3/19 (patch) | Restored "Potential Winnings" column to portfolio table (driven by bracket picks). Net Balance = Won to Date + Potential - Price. Header counter shows Won + Potential + Net. Added hint text explaining potential winnings are from bracket predictions. |
+| 3/19 (patch 2) | Added day headers ("FRIDAY, MARCH 20" / "SATURDAY, MARCH 21") inside the viewing guide game lists for clarity. |
+| 3/21 (R2 prep) | Added 16 Friday R1 results to CONFIRMED (all 32 R1 games now locked). Added 8 Sunday R2 games to R2_SCHEDULE (now has all 16 R2 games). Removed R1 viewing guide section; replaced with R2 Day 1 (Sat 3/21) + R2 Day 2 (Sun 3/22) sections with filter toggles. Added R1 recap card. Updated PLAYS_TODAY/PLAYS_TOMORROW to derive from R2_SCHEDULE. Portfolio status now shows "R2 Today"/"R2 Sunday" instead of "Won R1"/"Plays Today". Added S16 lookahead notes to viewing guide (root for lower seed in adjacent game). Rewrote scenario analysis for 7 remaining teams with R2 matchup context. Updated cascadeRemove to respect confirmed R2 results. Added mid-round vs new-round update notes to UPDATE_PROCESS.md. |
