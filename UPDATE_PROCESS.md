@@ -142,6 +142,15 @@ git push
 - **R2 Sunday (4 of our teams, 6 games):** Kentucky vs Iowa St. (OURS vs OURS), Alabama vs Texas Tech, UCLA vs UConn
 - **Teams remaining:** 7/13 | Haut List: 5/5
 
+## Status After R2 Day 1 (Sat 3/21)
+
+- **Won R2 (2):** Illinois 🔥 (76-55 vs VCU), Texas 🔥 (74-68 vs Gonzaga)
+- **Eliminated in R2:** Vanderbilt 🔥 (72-74 vs Nebraska) — first Haut List casualty
+- **S16 Locked:** Illinois vs Houston (Thu 3/26, HOU -2.5) · Texas vs Arkansas (TBD)
+- **R2 Sunday (4 of our teams):** Kentucky vs Iowa St. 🔥 (ISU -4.5, OURS vs OURS) · Alabama vs Texas Tech (TTU -1.5) · UCLA 🔥 vs UConn (CONN -4.5)
+- **Earnings to date:** 7 R1 ($24,622) + 2 R2 ($11,725) = $36,347 | Still need: $56,603
+- **Teams remaining:** 6/13 | Haut List: 4/5
+
 ## Mid-Round Update Notes
 
 When updating during a round that spans two days (e.g., R2 played Sat+Sun), there are key differences from a new-round update:
@@ -180,3 +189,4 @@ When updating during a round that spans two days (e.g., R2 played Sat+Sun), ther
 | 3/19 (patch) | Restored "Potential Winnings" column to portfolio table (driven by bracket picks). Net Balance = Won to Date + Potential - Price. Header counter shows Won + Potential + Net. Added hint text explaining potential winnings are from bracket predictions. |
 | 3/19 (patch 2) | Added day headers ("FRIDAY, MARCH 20" / "SATURDAY, MARCH 21") inside the viewing guide game lists for clarity. |
 | 3/21 (R2 prep) | Added 16 Friday R1 results to CONFIRMED (all 32 R1 games now locked). Added 8 Sunday R2 games to R2_SCHEDULE (now has all 16 R2 games). Removed R1 viewing guide section; replaced with R2 Day 1 (Sat 3/21) + R2 Day 2 (Sun 3/22) sections with filter toggles. Added R1 recap card. Updated PLAYS_TODAY/PLAYS_TOMORROW to derive from R2_SCHEDULE. Portfolio status now shows "R2 Today"/"R2 Sunday" instead of "Won R1"/"Plays Today". Added S16 lookahead notes to viewing guide (root for lower seed in adjacent game). Rewrote scenario analysis for 7 remaining teams with R2 matchup context. Updated cascadeRemove to respect confirmed R2 results. Added mid-round vs new-round update notes to UPDATE_PROCESS.md. |
+| 3/21 (R2 Day 1 results) | Mid-round update: Added 8 Saturday R2 results to CONFIRMED (Illinois 76-55 VCU, Texas 74-68 Gonzaga, Vanderbilt 72-74 Nebraska, etc.). Replaced Saturday viewing guide section with R2 Day 1 recap card showing our 2W/1L results, S16 matchups locked (ILL vs HOU, TEX vs ARK). Updated Sunday spreads from ESPN odds (TTU -1.5 vs Alabama flipped from ALA -1.5, ARIZ -12.5 vs Utah State). Updated S16 lookahead to use confirmed R2 winners when partner game is done. Added R2_WINNERS derived set for portfolio status ("Won R2 ✓"). Portfolio status now shows "R2 Today" for Sunday games, "Won R2 ✓" for Saturday winners. Rewrote scenarios for 6 remaining teams post-Saturday. Updated Quick Math table. |
