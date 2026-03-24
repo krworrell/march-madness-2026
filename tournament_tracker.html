@@ -143,7 +143,7 @@ tr.eliminated-row .team-cell{text-decoration:line-through;}
 <div class="app">
 <header>
   <h1>Team Worrell — 2026 March Madness</h1>
-  <div class="subtitle">Pot: $468,987 | Invested: $92,950 | 13 Teams | Updated: R2 Day 1 (Sat 3/21 results)</div>
+  <div class="subtitle">Pot: $468,987 | Invested: $92,950 | 13 Teams | Updated: R2 Complete (Tue 3/24 — Sweet 16 starts Thu)</div>
 </header>
 
 <div class="teams-remaining" id="teamsRemaining"></div>
@@ -268,7 +268,16 @@ const CONFIRMED = {
   "WEST-r2-2": {winner:"Texas",loser:"Gonzaga",wScore:74,lScore:68},
   "EAST-r2-0": {winner:"Duke",loser:"TCU",wScore:81,lScore:58},
   "EAST-r2-2": {winner:"Michigan St",loser:"Louisville",wScore:77,lScore:69},
-  "MIDWEST-r2-0": {winner:"Michigan",loser:"Saint Louis",wScore:95,lScore:72}
+  "MIDWEST-r2-0": {winner:"Michigan",loser:"Saint Louis",wScore:95,lScore:72},
+  // R2 — Sunday 3/22
+  "SOUTH-r2-0": {winner:"Iowa",loser:"Florida",wScore:73,lScore:72},
+  "WEST-r2-0": {winner:"Arizona",loser:"Utah State",wScore:78,lScore:66},
+  "WEST-r2-3": {winner:"Purdue",loser:"Miami",wScore:79,lScore:69},
+  "EAST-r2-1": {winner:"St. John's",loser:"Kansas",wScore:67,lScore:65},
+  "EAST-r2-3": {winner:"UConn",loser:"UCLA",wScore:73,lScore:57},
+  "MIDWEST-r2-1": {winner:"Alabama",loser:"Texas Tech",wScore:90,lScore:65},
+  "MIDWEST-r2-2": {winner:"Tennessee",loser:"Virginia",wScore:79,lScore:72},
+  "MIDWEST-r2-3": {winner:"Iowa St.",loser:"Kentucky",wScore:82,lScore:63}
 };
 
 // R2 Schedule — Saturday March 21 + Sunday March 22
@@ -291,6 +300,20 @@ const R2_SCHEDULE = {
   "MIDWEST-r2-1": {t1:"Texas Tech",t2:"Alabama",date:"Sun 3/22",time:"8:45 PM",ch:"TNT",spread:"TTU -1.5"},
   "MIDWEST-r2-2": {t1:"Tennessee",t2:"Virginia",date:"Sun 3/22",time:"5:10 PM",ch:"TNT",spread:"TENN -1.5"},
   "MIDWEST-r2-3": {t1:"Kentucky",t2:"Iowa St.",date:"Sun 3/22",time:"1:45 PM",ch:"CBS",spread:"ISU -4.5"}
+};
+
+// S16 Schedule — Thursday March 26 + Friday March 27
+const S16_SCHEDULE = {
+  // Thursday 3/26
+  "WEST-s16-0": {t1:"Texas",t2:"Purdue",date:"Thu 3/26",time:"6:10 PM",ch:"CBS",spread:"PUR -6.5"},
+  "SOUTH-s16-0": {t1:"Iowa",t2:"Nebraska",date:"Thu 3/26",time:"6:30 PM",ch:"TBS",spread:"NEB -1.5"},
+  "WEST-s16-1": {t1:"Arkansas",t2:"Arizona",date:"Thu 3/26",time:"8:45 PM",ch:"CBS",spread:"ARIZ -7.5"},
+  "SOUTH-s16-1": {t1:"Illinois",t2:"Houston",date:"Thu 3/26",time:"9:05 PM",ch:"TBS",spread:"HOU -3.5"},
+  // Friday 3/27
+  "EAST-s16-0": {t1:"St. John's",t2:"Duke",date:"Fri 3/27",time:"6:10 PM",ch:"CBS",spread:"DUKE -6.5"},
+  "MIDWEST-s16-0": {t1:"Alabama",t2:"Michigan",date:"Fri 3/27",time:"6:35 PM",ch:"TBS",spread:"MICH -9.5"},
+  "EAST-s16-1": {t1:"Michigan St",t2:"UConn",date:"Fri 3/27",time:"8:45 PM",ch:"CBS",spread:"CONN -1.5"},
+  "MIDWEST-s16-1": {t1:"Tennessee",t2:"Iowa St.",date:"Fri 3/27",time:"9:10 PM",ch:"TBS",spread:"ISU -4.5"}
 };
 
 // Team probabilities (pre-tournament)
@@ -338,20 +361,32 @@ Object.values(CONFIRMED).forEach(r => {
   if (isMine(r.winner)) R1_WINNERS.add(r.winner);
 });
 
-// Which of our teams play today (Sun 3/22)?
-// R2 winners from Saturday
+// R2 winners
 const R2_WINNERS = new Set();
 Object.entries(CONFIRMED).forEach(([key, r]) => {
   if (key.includes('-r2-') && isMine(r.winner)) R2_WINNERS.add(r.winner);
 });
 
-const PLAYS_TODAY = new Set();
-const PLAYS_TOMORROW = new Set();
-Object.entries(R2_SCHEDULE).forEach(([key, sched]) => {
-  if (CONFIRMED[key]) return; // Skip if R2 game already confirmed
-  if (sched.date.includes('3/22')) {
-    if (isMine(sched.t1)) PLAYS_TODAY.add(sched.t1);
-    if (isMine(sched.t2)) PLAYS_TODAY.add(sched.t2);
+// S16 teams — all 4 of our remaining teams play in S16
+const S16_TEAMS = new Set();
+Object.entries(S16_SCHEDULE).forEach(([key, sched]) => {
+  if (CONFIRMED[key]) return;
+  if (isMine(sched.t1)) S16_TEAMS.add(sched.t1);
+  if (isMine(sched.t2)) S16_TEAMS.add(sched.t2);
+});
+
+const PLAYS_TODAY = new Set(); // No games today (Tue 3/24)
+const PLAYS_THURSDAY = new Set();
+const PLAYS_FRIDAY = new Set();
+Object.entries(S16_SCHEDULE).forEach(([key, sched]) => {
+  if (CONFIRMED[key]) return;
+  if (sched.date.includes('3/26')) {
+    if (isMine(sched.t1)) PLAYS_THURSDAY.add(sched.t1);
+    if (isMine(sched.t2)) PLAYS_THURSDAY.add(sched.t2);
+  }
+  if (sched.date.includes('3/27')) {
+    if (isMine(sched.t1)) PLAYS_FRIDAY.add(sched.t1);
+    if (isMine(sched.t2)) PLAYS_FRIDAY.add(sched.t2);
   }
 });
 
@@ -457,20 +492,20 @@ function renderPortfolio(){
     const potential = Math.max(0, totalFromPicks - actualWon);
     const netBalance = actualWon + potential - price;
     const isElim = ELIMINATED.has(teamName);
-    const wonR2 = R2_WINNERS.has(teamName);
-    const playsToday = PLAYS_TODAY.has(teamName);
+    const playsThu = PLAYS_THURSDAY.has(teamName);
+    const playsFri = PLAYS_FRIDAY.has(teamName);
 
     let status, statusClass;
     if (isElim) { status = 'Eliminated'; statusClass = 'eliminated'; }
-    else if (playsToday) { status = 'R2 Today'; statusClass = 'today'; }
-    else if (wonR2) { status = 'Won R2 ✓'; statusClass = 'won-r1'; }
-    else { status = 'Won R1'; statusClass = 'alive'; }
+    else if (playsThu) { status = 'S16 Thursday'; statusClass = 'today'; }
+    else if (playsFri) { status = 'S16 Friday'; statusClass = 'today'; }
+    else { status = 'S16 ✓'; statusClass = 'alive'; }
 
     rows.push({ teamName, region: info ? info.region : '?', seed: info ? info.seed : 0, price, actualWon, potential, netBalance, isElim, status, statusClass });
   });
 
-  // Sort: plays today first, then won R2, then alive, eliminated at bottom
-  const statusOrder = {'R2 Today': 0, 'Won R2 ✓': 1, 'Won R1': 2, 'Alive': 2, 'Eliminated': 3};
+  // Sort: S16 teams first, then eliminated at bottom
+  const statusOrder = {'S16 Thursday': 0, 'S16 Friday': 1, 'S16 ✓': 2, 'Alive': 2, 'Eliminated': 3};
   rows.sort((a,b) => (statusOrder[a.status] || 1) - (statusOrder[b.status] || 1) || b.price - a.price);
 
   let html = '<table><thead><tr><th>Team</th><th>Region</th><th>Seed</th><th>Price Paid</th><th>Won to Date</th><th>Potential Winnings</th><th>Net Balance</th><th>Status</th></tr></thead><tbody>';
@@ -527,110 +562,99 @@ function renderGuide(){
     return h * 60 + m;
   };
 
-  // S16 pairing: R2-0 vs R2-1 → S16-0, R2-2 vs R2-3 → S16-1
-  const s16Pairs = {0:1, 1:0, 2:3, 3:2};
+  // E8 pairing: S16-0 vs S16-1 within each region
+  const e8Pairs = {0:1, 1:0};
 
-  // Build all R2 games from schedule
-  let r2Games = [];
-  Object.entries(R2_SCHEDULE).forEach(([key, sched]) => {
-    if (CONFIRMED[key]) return; // Skip confirmed R2 games
+  let html = '';
+
+  // R2 Complete Recap card
+  html += `<div class="card" style="border-left:3px solid var(--green);">
+    <h3>Round 2 Complete — 4 Wins, 3 Losses</h3>
+    <div style="font-size:12px;line-height:1.8;">
+      <strong style="color:var(--green);">Won R2 (4):</strong> Illinois \u{1F525} 76-55 vs VCU · Texas \u{1F525} 74-68 vs Gonzaga (Sat) · Iowa St. \u{1F525} 82-63 vs Kentucky · Alabama 90-65 vs Texas Tech (Sun)<br>
+      <strong style="color:var(--red);">Eliminated in R2 (3):</strong> <span style="text-decoration:line-through;opacity:0.6;">Vanderbilt \u{1F525}</span> 72-74 vs Nebraska · <span style="text-decoration:line-through;opacity:0.6;">Kentucky</span> 63-82 vs Iowa St. \u{1F525} · <span style="text-decoration:line-through;opacity:0.6;">UCLA \u{1F525}</span> 57-73 vs UConn<br>
+      <strong>R2 Earnings:</strong> 4 wins × ${fmt(PER_WIN.R2)} = <span style="color:var(--green);font-weight:700;">${fmt(4 * PER_WIN.R2)}</span><br>
+      <strong>Running total:</strong> ${fmt(7 * PER_WIN.R1 + 4 * PER_WIN.R2)} earned (${((7 * PER_WIN.R1 + 4 * PER_WIN.R2) / TOTAL_SPENT * 100).toFixed(0)}% of cost) · 4 teams remaining · Haut List: \u{1F525} 3/5 alive<br>
+      <strong>Still need:</strong> <span style="color:var(--orange);font-weight:700;">${fmt(TOTAL_SPENT - 7 * PER_WIN.R1 - 4 * PER_WIN.R2)}</span> to break even · All 4 surviving teams in S16!
+    </div>
+  </div>`;
+
+  // --- SECTION: Sweet 16 Games ---
+  html += '<div class="section-divider">Sweet 16 — Thursday 3/26 & Friday 3/27</div>';
+
+  // Build S16 games from schedule
+  let s16Games = [];
+  Object.entries(S16_SCHEDULE).forEach(([key, sched]) => {
+    if (CONFIRMED[key]) return;
     const t1Mine = isMine(sched.t1), t2Mine = isMine(sched.t2);
     const bothMine = t1Mine && t2Mine;
     const region = key.split('-')[0];
-    const r2Idx = parseInt(key.split('-')[2]);
+    const s16Idx = parseInt(key.split('-')[2]);
 
     let notes = [];
     if (bothMine) {
-      notes.push({type:'conflict', text:`Both teams are ours! Guaranteed R2 win + loss ($${Math.round(PER_WIN.R2).toLocaleString()} earned).`, imp:'high'});
+      notes.push({type:'conflict', text:`Both teams are ours! Guaranteed S16 win + loss ($${Math.round(PER_WIN.S16).toLocaleString()} earned).`, imp:'high'});
     } else if (t1Mine || t2Mine) {
       const myTeam = t1Mine ? sched.t1 : sched.t2;
       notes.push({type:'root-for', text:`Root for ${tl(myTeam)}!`, imp:'high'});
     }
 
-    // S16 lookahead: who would our team play next?
-    const partnerR2Idx = s16Pairs[r2Idx];
-    const partnerR2Key = `${region}-r2-${partnerR2Idx}`;
-    const partnerSched = R2_SCHEDULE[partnerR2Key];
-    const partnerConf = CONFIRMED[partnerR2Key];
-    if ((t1Mine || t2Mine) && partnerSched) {
-      if (partnerConf) {
-        // Partner R2 game is done — we know the S16 opponent
-        const s16Opp = partnerConf.winner;
-        const s16OppMine = isMine(s16Opp);
-        const s16OppSeed = findTeamInfo(s16Opp)?.seed || '?';
-        if (s16OppMine) {
-          notes.push({type:'watch', text:`S16: would face ${tl(s16Opp)} (ours!) — both ours in S16!`, imp:'high'});
-        } else {
-          notes.push({type:'root-for', text:`S16 opponent locked: #${s16OppSeed} ${s16Opp}`, imp:'low'});
-        }
+    // E8 lookahead: who would our team play next?
+    const partnerS16Idx = e8Pairs[s16Idx];
+    const partnerS16Key = `${region}-s16-${partnerS16Idx}`;
+    const partnerSched = S16_SCHEDULE[partnerS16Key];
+    const partnerConf = CONFIRMED[partnerS16Key];
+    if ((t1Mine || t2Mine) && partnerSched && !partnerConf) {
+      const pt1Mine = isMine(partnerSched.t1);
+      const pt2Mine = isMine(partnerSched.t2);
+      if (pt1Mine || pt2Mine) {
+        const otherTeam = pt1Mine ? partnerSched.t1 : partnerSched.t2;
+        notes.push({type:'watch', text:`E8: could face ${tl(otherTeam)} (ours!) — potential all-ours E8!`, imp:'high'});
       } else {
-        const partnerT1Mine = isMine(partnerSched.t1);
-        const partnerT2Mine = isMine(partnerSched.t2);
-        const partnerT1Seed = findTeamInfo(partnerSched.t1)?.seed || 0;
-        const partnerT2Seed = findTeamInfo(partnerSched.t2)?.seed || 0;
-
-        if (partnerT1Mine || partnerT2Mine) {
-          const otherTeam = partnerT1Mine ? partnerSched.t1 : partnerSched.t2;
-          notes.push({type:'watch', text:`S16 could match vs ${tl(otherTeam)} (ours!) from ${partnerSched.t1} vs ${partnerSched.t2}`, imp:'med'});
-        } else {
-          const easier = partnerT1Seed > partnerT2Seed ? partnerSched.t1 : partnerSched.t2;
-          const easierSeed = Math.max(partnerT1Seed, partnerT2Seed);
-          notes.push({type:'root-for', text:`S16 opponent: root for ${easierSeed}-seed ${easier} over ${Math.min(partnerT1Seed, partnerT2Seed)}-seed ${partnerT1Seed > partnerT2Seed ? partnerSched.t2 : partnerSched.t1} (easier path)`, imp:'low'});
-        }
+        const pt1Seed = findTeamInfo(partnerSched.t1)?.seed || 0;
+        const pt2Seed = findTeamInfo(partnerSched.t2)?.seed || 0;
+        const easier = pt1Seed > pt2Seed ? partnerSched.t1 : partnerSched.t2;
+        const easierSeed = Math.max(pt1Seed, pt2Seed);
+        notes.push({type:'root-for', text:`E8 opponent: root for #${easierSeed} ${easier} (easier path)`, imp:'low'});
       }
     }
 
-    r2Games.push({...sched, key, region, r2Idx, t1Mine, t2Mine, bothMine, notes,
+    s16Games.push({...sched, key, region, s16Idx, t1Mine, t2Mine, bothMine, notes,
       s1: findTeamInfo(sched.t1)?.seed || '?',
       s2: findTeamInfo(sched.t2)?.seed || '?'
     });
   });
 
-  r2Games.sort((a,b) => timeToMin(a.time) - timeToMin(b.time));
+  s16Games.sort((a,b) => timeToMin(a.time) - timeToMin(b.time));
 
-  const satGames = r2Games.filter(g => g.date.includes('3/21'));
-  const sunGames = r2Games.filter(g => g.date.includes('3/22'));
-  const ourSat = satGames.filter(g => g.t1Mine || g.t2Mine).length;
-  const ourSun = sunGames.filter(g => g.t1Mine || g.t2Mine).length;
+  const thuGames = s16Games.filter(g => g.date.includes('3/26'));
+  const friGames = s16Games.filter(g => g.date.includes('3/27'));
+  const ourThu = thuGames.filter(g => g.t1Mine || g.t2Mine).length;
+  const ourFri = friGames.filter(g => g.t1Mine || g.t2Mine).length;
 
-  let html = '';
-
-  // R2 Saturday Recap card
-  html += `<div class="card" style="border-left:3px solid var(--green);">
-    <h3>R2 Day 1 Complete (Saturday 3/21) — 2 Wins, 1 Loss</h3>
-    <div style="font-size:12px;line-height:1.8;">
-      <strong style="color:var(--green);">Won R2:</strong> Illinois \u{1F525} 76-55 vs VCU (+${fmt(PER_WIN.R2)}) · Texas \u{1F525} 74-68 vs Gonzaga (+${fmt(PER_WIN.R2)})<br>
-      <strong style="color:var(--red);">Eliminated:</strong> <span style="text-decoration:line-through;opacity:0.6;">Vanderbilt \u{1F525}</span> lost to Nebraska 72-74<br>
-      <strong>R2 Day 1 Earnings:</strong> 2 wins × ${fmt(PER_WIN.R2)} = <span style="color:var(--green);font-weight:700;">${fmt(2 * PER_WIN.R2)}</span><br>
-      <strong>S16 Locked:</strong> Illinois vs Houston (Thu 3/26, HOU -2.5) · Texas vs Arkansas (TBD)<br>
-      <strong>Running total:</strong> ${fmt(7 * PER_WIN.R1 + 2 * PER_WIN.R2)} earned · 6 teams remaining · Haut List: \u{1F525} 4/5 alive
-    </div>
-  </div>`;
-
-  // --- SECTION: Sunday 3/22 R2 Games ---
-  html += '<div class="section-divider">Round 2 — Sunday, March 22 (8 games)</div>';
-  html += `<div class="card"><h3>R2 Day 2 — ${ourSun} of ${sunGames.length} games involve our teams</h3>`;
+  html += `<div class="card"><h3>S16 — ${ourThu + ourFri} of ${s16Games.length} games involve our teams</h3>`;
 
   html += `<div class="filter-toggle">
-    <button class="toggle-btn" id="filterAllSun" onclick="toggleFilter('sun','all')">All Games (${sunGames.length})</button>
-    <button class="toggle-btn active" id="filterOursSun" onclick="toggleFilter('sun','ours')">Our Games Only</button>
+    <button class="toggle-btn" id="filterAllS16" onclick="toggleFilter('s16','all')">All Games (${s16Games.length})</button>
+    <button class="toggle-btn active" id="filterOursS16" onclick="toggleFilter('s16','ours')">Our Games Only (${ourThu + ourFri})</button>
   </div>`;
 
   html += `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
     <span style="display:inline-block;width:10px;height:10px;background:rgba(79,140,255,0.15);border-left:3px solid var(--accent);margin-right:4px;"></span> Our team playing
-    <span style="display:inline-block;width:10px;height:10px;background:rgba(245,166,35,0.15);border-left:3px solid var(--orange);margin:0 4px 0 12px;"></span> Both teams are ours
     <span style="margin-left:12px;">\u{1F525} = Haut List team</span>
+    <span style="margin-left:12px;">S16 Win = <span style="color:var(--green);font-weight:700;">${fmt(PER_WIN.S16)}</span></span>
   </div>`;
 
   html += `<div style="display:grid;grid-template-columns:60px 50px 1fr 80px;padding:4px 10px;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">
     <div>Time</div><div>TV</div><div>Matchup</div><div>Spread</div>
   </div>`;
-  html += '<div id="sunGamesList">';
-  html += '<div class="day-header">SUNDAY, MARCH 22</div>';
+  html += '<div id="s16GamesList">';
 
-  sunGames.forEach(g => {
-    html += renderGuideGameSlot(g);
-  });
+  html += '<div class="day-header">THURSDAY, MARCH 26</div>';
+  thuGames.forEach(g => { html += renderGuideGameSlot(g); });
+
+  html += '<div class="day-header">FRIDAY, MARCH 27</div>';
+  friGames.forEach(g => { html += renderGuideGameSlot(g); });
 
   html += '</div></div>';
 
@@ -638,18 +662,21 @@ function renderGuide(){
 
   // Filter functions
   window.toggleFilter = function(day, mode) {
-    const listId = 'sunGamesList';
-    const allId = 'filterAllSun';
-    const oursId = 'filterOursSun';
+    const listId = 's16GamesList';
+    const allId = 'filterAllS16';
+    const oursId = 'filterOursS16';
     document.getElementById(allId).classList.toggle('active', mode === 'all');
     document.getElementById(oursId).classList.toggle('active', mode === 'ours');
     document.querySelectorAll(`#${listId} > *`).forEach(el => {
       if (mode === 'all') { el.style.display = ''; }
-      else { el.style.display = el.dataset.filter && el.dataset.filter.includes('our-game') ? 'grid' : 'none'; }
+      else {
+        if (el.classList.contains('day-header')) { el.style.display = ''; }
+        else { el.style.display = el.dataset.filter && el.dataset.filter.includes('our-game') ? 'grid' : 'none'; }
+      }
     });
   };
 
-  setTimeout(() => { toggleFilter('sun','ours'); }, 0);
+  setTimeout(() => { toggleFilter('s16','ours'); }, 0);
 }
 
 function renderGuideGameSlot(g) {
@@ -872,6 +899,13 @@ function renderBracket(){
           <div class="team-slot-content"><div class="team-slot-name">${s16t2Picked ? '✓ ' : ''}${tl(s16t2)}</div><div class="team-slot-seed">#${seed}</div>${mine ? `<div class="team-slot-price">${fmt(MY[s16t2])}</div>` : ''}</div></div>`;
       } else { html += `<div class="team-slot empty">TBD</div>`; }
 
+      // Show S16 schedule info if available and not yet confirmed
+      const s16Sched = S16_SCHEDULE[s16Key];
+      const s16Conf = CONFIRMED[s16Key];
+      if (s16Sched && !s16Conf) {
+        html += `<div class="r2-schedule-info">${s16Sched.date} · ${s16Sched.time} · ${s16Sched.ch} · ${s16Sched.spread}</div>`;
+      }
+
       html += '</div>';
     }
     html += '</div>';
@@ -985,7 +1019,7 @@ function clearAllPicks() {
 }
 
 // ============================================================
-// BREAK-EVEN SCENARIOS (Updated after R2 Day 1 — 6 teams remain)
+// BREAK-EVEN SCENARIOS (Updated after R2 Complete — 4 teams in S16)
 // ============================================================
 function renderScenarios(){
   const wonToDate = Object.keys(MY).reduce((sum, t) => sum + getActualWinnings(t), 0);
@@ -998,68 +1032,61 @@ function renderScenarios(){
         <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Won to Date</div><div style="font-size:18px;font-weight:700;color:var(--green);">${fmt(wonToDate)}</div></div>
         <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Still Need</div><div style="font-size:18px;font-weight:700;color:var(--orange);">${fmt(breakEvenTarget - wonToDate)}</div></div>
         <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">Teams Alive</div><div style="font-size:18px;font-weight:700;">${teamsAlive}/13</div></div>
-        <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">R2 Day 1</div><div style="font-size:14px;font-weight:600;">2W / 1L (Sat)</div><div style="font-size:11px;color:var(--muted);">Lost: Vanderbilt \u{1F525}</div></div>
+        <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;">R2 Result</div><div style="font-size:14px;font-weight:600;">4W / 3L</div><div style="font-size:11px;color:var(--muted);">All 4 survivors in S16</div></div>
       </div>
     </div>
     <div style="color:var(--muted);font-size:11px;margin-bottom:12px;">
-      <strong>R2 Day 1 recap (Sat 3/21):</strong> Illinois \u{1F525} dominated VCU 76-55. Texas \u{1F525} upset 3-seed Gonzaga 74-68. Vanderbilt \u{1F525} heartbreaker — lost to Nebraska 72-74 (first Haut List casualty). Illinois → S16 vs Houston (HOU -2.5). Texas → S16 vs Arkansas.<br>
-      <strong>Sunday R2 (3 games involving us):</strong> Kentucky vs Iowa St. \u{1F525} (ISU -4.5, guaranteed win+loss) · Alabama vs Texas Tech (TTU -1.5) · UCLA \u{1F525} vs UConn (CONN -4.5)<br>
+      <strong>R2 recap:</strong> Sat — Illinois \u{1F525} 76-55 over VCU, Texas \u{1F525} 74-68 over Gonzaga, Vanderbilt \u{1F525} 72-74 to Nebraska. Sun — Iowa St. \u{1F525} 82-63 over Kentucky, Alabama 90-65 over Texas Tech, UCLA \u{1F525} 57-73 to UConn.<br>
+      <strong>S16 matchups:</strong> Thu — Texas vs Purdue (PUR -6.5), Illinois vs Houston (HOU -3.5). Fri — Alabama vs Michigan (MICH -9.5), Iowa St. vs Tennessee (ISU -4.5).<br>
       Reference: S16 Win = ${fmt(PER_WIN.S16)} | E8 Win = ${fmt(PER_WIN.E8)} | F4 Win = ${fmt(PER_WIN.F4)} | Champ = ${fmt(PER_WIN.Champ)}
     </div>`;
 
-  // Status: 6 teams alive. Illinois & Texas already in S16.
-  // Sunday decides: Iowa St./Kentucky (one advances), Alabama (underdog), UCLA (underdog)
-  // After Sunday, 3-5 teams in S16. Illinois S16 locked vs Houston.
+  // 4 teams alive, all in S16. ISU favored, Illinois/Texas underdogs, Alabama big underdog.
+  // Key: ISU and Alabama are in same region (Midwest) — if both win S16, they play each other in E8.
+  // Illinois and Texas are in different regions (South, West) — no collision until F4.
 
   const scenarios = [
     {
-      title: "Sunday Disaster — Only ISU/UK Survives",
-      description: "Iowa St. beats Kentucky (ISU favored). Alabama loses to Texas Tech (TTU favored). UCLA loses to UConn (CONN favored). End R2 with 3 total R2 wins (Illinois, Texas, Iowa St.). Only 3 teams in S16: Illinois, Texas, Iowa St. All three lose S16.",
+      title: "S16 Shutout — All 4 Lose",
+      description: "All 4 of our teams are underdogs or near-toss-ups. Texas falls to Purdue (PUR -6.5), Illinois falls to Houston (HOU -3.5), Alabama falls to Michigan (MICH -9.5), Iowa St. falls to Tennessee. No S16 earnings. Tournament over.",
       type: "downside",
-      payout: 7 * PER_WIN.R1 + 3 * PER_WIN.R2,
-      prob: "~20%"
-    },
-    {
-      title: "Likely Floor — 3 R2 Wins + Illinois S16",
-      description: "Iowa St. beats Kentucky. Alabama and UCLA both lose Sunday (both underdogs). 3 teams in S16: Illinois beats Houston, but Iowa St. and Texas lose S16. One S16 win from Illinois.",
-      type: "downside",
-      payout: 7 * PER_WIN.R1 + 3 * PER_WIN.R2 + 1 * PER_WIN.S16,
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2,
       prob: "~15%"
     },
     {
-      title: "Good Sunday — 4 R2 Wins + 1 S16",
-      description: "Iowa St. beats Kentucky + Alabama upsets Texas Tech. UCLA falls. Illinois wins S16 vs Houston. Iowa St. and Texas lose S16. 4 teams made S16, one wins.",
+      title: "Likely Outcome — Iowa St. Wins S16, Rest Fall",
+      description: "Iowa St. (ISU -4.5) is our only favorite. ISU beats Tennessee for an S16 payout. Illinois, Texas, and Alabama all lose as underdogs. ISU alone in E8.",
       type: "downside",
       payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 1 * PER_WIN.S16,
-      prob: "~12%"
+      prob: "~25%"
     },
     {
-      title: "Near Break-Even — 4 R2 + 2 S16",
-      description: "Iowa St. + Alabama both win Sunday. Illinois and Iowa St. both win S16. Texas loses S16 to Arkansas. 4 R2 wins + 2 S16 wins gets us within striking distance.",
+      title: "Two S16 Wins — Near Break-Even",
+      description: "Iowa St. beats Tennessee + Illinois upsets Houston. Texas and Alabama fall. Two S16 payouts bring us close to break-even. ISU advances to E8 (Midwest), Illinois advances to E8 (South).",
       type: "downside",
       payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16,
+      prob: "~15%"
+    },
+    {
+      title: "Break-Even — ISU E8 Win + 1 S16",
+      description: "Iowa St. wins S16 + E8. Illinois or Texas wins their S16. One E8 win from our anchor puts us at break-even. ISU in the Final Four.",
+      type: "upside",
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 1 * PER_WIN.E8,
       prob: "~5%"
     },
     {
-      title: "Break-Even: Iowa St. E8 + Illinois S16",
-      description: "Iowa St. wins R2 → S16 → E8. Illinois wins S16. Texas wins S16. 3+ R2 wins + 3 S16 + 1 E8 gets us to break-even territory.",
+      title: "Profitable — ISU Final Four + Illinois E8",
+      description: "Iowa St. goes S16 → E8 → F4. Illinois wins S16 + E8. Deep runs from our two biggest investments. Portfolio turns profitable.",
       type: "upside",
-      payout: 7 * PER_WIN.R1 + 3 * PER_WIN.R2 + 3 * PER_WIN.S16 + 1 * PER_WIN.E8,
-      prob: "~3%"
-    },
-    {
-      title: "Profitable: Iowa St. F4 + Illinois E8 (+30% ROI)",
-      description: "Iowa St. reaches Final Four. Illinois makes Elite 8. Texas wins S16. Deep runs from our two biggest investments pay off big.",
-      type: "upside",
-      payout: 7 * PER_WIN.R1 + 3 * PER_WIN.R2 + 3 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4,
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4,
       prob: "~1%"
     },
     {
-      title: "Dream: Iowa St. Championship (+100% ROI)",
-      description: "Iowa State wins it all: S16 ($11.7K) + E8 ($19.9K) + F4 ($25.8K) + Champ ($32.8K) = $90.4K from ISU alone from S16 on. Combined with R1/R2 earnings, portfolio hits ~$180K+.",
+      title: "Dream — ISU Championship",
+      description: "Iowa State wins it all: S16 + E8 + F4 + Championship = ${fmt(PER_WIN.S16 + PER_WIN.E8 + PER_WIN.F4 + PER_WIN.Champ)} from ISU alone. Combined with R1/R2 and any other S16 wins, portfolio could hit $140K+.",
       type: "upside",
-      payout: 7 * PER_WIN.R1 + 3 * PER_WIN.R2 + 2 * PER_WIN.S16 + 2 * PER_WIN.E8 + 1 * PER_WIN.F4 + 1 * PER_WIN.Champ,
-      prob: "~0.3%"
+      payout: 7 * PER_WIN.R1 + 4 * PER_WIN.R2 + 2 * PER_WIN.S16 + 1 * PER_WIN.E8 + 1 * PER_WIN.F4 + 1 * PER_WIN.Champ,
+      prob: "~0.5%"
     }
   ];
 
@@ -1088,15 +1115,14 @@ function renderScenarios(){
   });
 
   html += `<div style="margin-top:16px;padding:12px;background:var(--card2);border-radius:8px;">
-    <h4 style="font-size:13px;margin-bottom:8px;">Quick Math (Post R2 Day 1)</h4>
+    <h4 style="font-size:13px;margin-bottom:8px;">Quick Math (R2 Complete)</h4>
     <table>
-      <tr><td>Locked earnings (7 R1 + 2 R2)</td><td style="font-weight:700;">${fmt(7 * PER_WIN.R1 + 2 * PER_WIN.R2)} (${((7 * PER_WIN.R1 + 2 * PER_WIN.R2) / breakEvenTarget * 100).toFixed(0)}% of cost)</td></tr>
-      <tr><td>Still need to break even</td><td style="font-weight:700;">${fmt(breakEvenTarget - wonToDate)} from Sunday R2 + S16+</td></tr>
-      <tr><td>Kentucky vs Iowa St. (guaranteed)</td><td style="font-weight:700;">+${fmt(PER_WIN.R2)} locked (one wins, one eliminated)</td></tr>
-      <tr><td>S16 locked: Illinois vs Houston</td><td>Win = +${fmt(PER_WIN.S16)}</td></tr>
-      <tr><td>S16 locked: Texas vs Arkansas</td><td>Win = +${fmt(PER_WIN.S16)}</td></tr>
-      <tr><td>One E8 win = </td><td>${(PER_WIN.E8/PER_WIN.S16).toFixed(1)} S16 wins worth</td></tr>
-      <tr><td>ISU championship run (S16→Champ) = </td><td>${fmt(PER_WIN.S16 + PER_WIN.E8 + PER_WIN.F4 + PER_WIN.Champ)}</td></tr>
+      <tr><td>Locked earnings (7 R1 + 4 R2)</td><td style="font-weight:700;">${fmt(7 * PER_WIN.R1 + 4 * PER_WIN.R2)} (${((7 * PER_WIN.R1 + 4 * PER_WIN.R2) / breakEvenTarget * 100).toFixed(0)}% of cost)</td></tr>
+      <tr><td>Still need to break even</td><td style="font-weight:700;">${fmt(breakEvenTarget - wonToDate)} from S16+</td></tr>
+      <tr><td>Each S16 win</td><td style="font-weight:700;">+${fmt(PER_WIN.S16)}</td></tr>
+      <tr><td>One E8 win = </td><td>${(PER_WIN.E8/PER_WIN.S16).toFixed(1)}× an S16 win</td></tr>
+      <tr><td>ISU full run (S16→Champ) = </td><td>${fmt(PER_WIN.S16 + PER_WIN.E8 + PER_WIN.F4 + PER_WIN.Champ)}</td></tr>
+      <tr><td>Midwest note</td><td>If ISU + Alabama both win S16, they face each other in E8</td></tr>
     </table>
   </div>`;
 
